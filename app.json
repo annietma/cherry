@@ -1,6 +1,9 @@
 {
   "expo": {
     "name": "cherry",
+    "plugins": [
+      "@notifee/react-native"
+    ],
     "slug": "cherry",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,7 +20,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "ios32"
     },
     "android": {
       "adaptiveIcon": {
