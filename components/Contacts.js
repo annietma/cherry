@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { TabRouter } from 'react-navigation';
-import { StyleSheet, Text, View, FlatList, Image, Pressable } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, Pressable, ImageEditor } from 'react-native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -13,12 +13,18 @@ export default function ContactList(props) {
     const navigation = useNavigation();
 
     function ContactItem(props) {
-        var imageRender = <View style={styles.image}><Text style={styles.initials}>{props.firstName ? props.firstName[0] : ""}{props.lastName ? props.lastName[0] : ""}</Text></View>;
-        if (props.hasImage) {
-            imageRender = <Image style={styles.image} source={props.image} />
+        var imageRender = <View style={styles.image}>
+            <Text style={styles.initials}>{props.firstName ? props.firstName[0] : ""}{props.lastName ? props.lastName[0] : ""}</Text>
+            {props.online ? <View style={{ height: 12, width: 12, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
+        </View>;
+        if (props.imageAvailable) {
+            imageRender = <View style={styles.image} >
+                <Image style={styles.image} source={props.image} />
+                {props.online ? <View style={{ height: 12, width: 12, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
+            </View>
         }
 
-        var onPressContact = () => navigation.navigate("Categories", { firstName: props.firstName, lastName: props.lastName });
+        var onPressContact = () => navigation.navigate("Categories", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online });
         if (props.onPressContact === "ViewQuestion") {
             onPressContact = () => navigation.navigate("ViewQuestion", { firstName: props.firstName, imageRender: imageRender });
         }
@@ -33,6 +39,7 @@ export default function ContactList(props) {
     }
 
     function renderContacts({ item, index }) {
+        console.log(item);
         var contactStyle = styles.contact;
         if (props.contactStyle !== undefined) {
             contactStyle = props.contactStyle;
@@ -40,15 +47,17 @@ export default function ContactList(props) {
         return <ContactItem
             firstName={item.firstName}
             lastName={item.lastName}
-            hasImage={item.imageAvailable}
+            imageAvailable={item.imageAvailable}
             image={item.image}
+            online={item.online}
             contactStyle={contactStyle}
             onPressContact={props.onPressContact}
+            id={props.id}
         />;
     };
 
     return (
-        <FlatList data={props.data} renderItem={renderContacts} style={styles.container} />
+        <FlatList data={props.data} renderItem={renderContacts} style={styles.container} keyExtractor={(item) => item.id} />
     );
 }
 

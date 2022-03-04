@@ -25,13 +25,25 @@ export default function Home(props) {
     var firstContact = props.data[0];
     var lastContact = props.data[props.data.length - 1];
 
+    function imageRender(contact) {
+        if (contact.imageAvailable) {
+            return <View style={styles.image}>
+                <Image style={styles.image} source={contact.image} />
+                {contact.online ? <View style={{ height: 9, width: 9, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
+            </View>
+        }
+        else {
+            return <View style={styles.image}>
+                <Text style={styles.initials}>{contact.firstName ? contact.firstName[0] : ""}{contact.lastName ? contact.lastName[0] : ""}</Text>
+                {contact.online ? <View style={{ height: 9, width: 9, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
+            </View>;
+        }
+    }
+
     function HomeDefault() {
 
         function cardBlock(title, contact, subtitle, bodyText) {
-            var imageRender = <View style={styles.image}><Text style={styles.initials}>{contact.firstName ? contact.firstName[0] : ""}{contact.lastName ? contact.lastName[0] : ""}</Text></View>;
-            if (contact.imageAvailable) {
-                imageRender = <Image style={styles.image} source={contact.image} />
-            }
+            var image = imageRender(contact);
             return (
                 <>
                     <Text style={{ fontFamily: regFont, fontSize: 20, marginTop: 30, marginBottom: 5, marginLeft: '5%', color: 'white' }}>{title}</Text>
@@ -40,7 +52,7 @@ export default function Home(props) {
                         <BlurView intensity={75} tint="light"
                             style={{ overflow: 'hidden', backgroundColor: 'rgba(255, 255, 255, 0.55)', height: 150, width: '94%', justifyContent: 'center', borderWidth: 1, borderColor: 'white', borderRadius: 25, }}>
                             <View style={{ flexDirection: 'row', position: 'absolute', top: 0, alignItems: 'center', marginLeft: 10, marginTop: 10, }}>
-                                {imageRender}
+                                {image}
                                 <Text style={{ marginLeft: 7, fontFamily: regFont }}>{contact.firstName} {subtitle}</Text>
                             </View>
                             <Text style={{ textAlign: 'center', fontFamily: regFont, fontSize: 16, width: '90%', alignSelf: 'center', marginTop: 20, }}>{bodyText}</Text>
@@ -63,7 +75,7 @@ export default function Home(props) {
                         {cardBlock("New Questions", firstContact, "asked:", "What are you most excited about in the coming weeks?")}
                         {cardBlock("New Responses", lastContact, "responded:", "Where do you want to live before you settle down?")}
                         <View style={{ alignItems: 'center' }}>
-                            <Pressable onPress={() => navigation.navigate("ChooseContact")} >
+                            <Pressable onPress={() => navigation.navigate("ChooseContact", { data: props.data })} >
                                 {({ pressed }) => (
                                     <BlurView intensity={75} tint="light" style={[styles.send, { marginTop: 120, width: 250, backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
                                         <Text style={styles.categoryText}>SEND A QUESTION</Text>
@@ -78,7 +90,7 @@ export default function Home(props) {
 
     }
 
-    function ChooseContact() {
+    function ChooseContact({ route }) {
         return (
             <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
                 <SafeAreaView>
@@ -88,9 +100,8 @@ export default function Home(props) {
                             borderWidth: 1, borderColor: 'white', borderRadius: 25, marginTop: 70, alignSelf: 'center'
                         }}>
                         <View style={{ height: 50 }} />
-                        <ContactList data={props.data} />
+                        <ContactList data={route.params.data} />
                     </BlurView>
-
                 </SafeAreaView>
             </LinearGradient>
         )
@@ -99,32 +110,45 @@ export default function Home(props) {
     function Categories({ route }) {
         const renderCategories = ({ item }) => {
             return (
-                <Pressable onPress={() => navigation.navigate("Question", { firstName: route.params.firstName, category: item.name })}>
-                    <BlurView intensity={75} tint="light" style={styles.category}>
-                        <Text style={styles.categoryText}>{item.name}</Text>
-                    </BlurView>
+                <Pressable onPress={() => navigation.navigate("Question", { category: item.name, firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online })}>
+                    {({ pressed }) => (
+                        <BlurView intensity={75} tint="light" style={[styles.category, { backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
+                            <Text style={styles.categoryText}>{item.name}</Text>
+                        </BlurView>
+                    )}
                 </Pressable>
             )
         }
         return (
             <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
                 <SafeAreaView>
-                    <Pressable onPress={() => navigation.navigate("Question", { firstName: route.params.firstName, category: "Random", question: Math.floor(Math.random() * categories.length) })}>
-                        <BlurView intensity={75} tint="light" style={[styles.category, { marginTop: 100 }]}>
-                            <Text style={styles.categoryText}>🎲 Random</Text>
-                        </BlurView>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 45, }}>
+                        {imageRender(route.params)}
+                        <Text style={{ alignSelf: 'center', fontFamily: regFont, fontSize: 16, color: 'white' }}> {route.params.firstName} {route.params.lastName}</Text>
+                    </View>
+                    <Text style={{ alignSelf: 'center', fontFamily: regFont, fontSize: 18, color: 'white', marginTop: 40 }}>Choose Category</Text>
+                    <Pressable onPress={() => navigation.navigate("Question", { category: "Random", question: Math.floor(Math.random() * categories.length), firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online })}>
+                        {({ pressed }) => (
+                            <BlurView intensity={75} tint="light" style={[styles.category, { marginTop: 10, backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
+                                <Text style={styles.categoryText}>🎲 Random</Text>
+                            </BlurView>
+                        )}
                     </Pressable>
-                    <Pressable onPress={() => navigation.navigate("Question", { firstName: route.params.firstName, category: "Custom" })}>
-                        <BlurView intensity={75} tint="light" style={[styles.category, { marginBottom: 60 }]}>
-                            <Text style={styles.categoryText}>✏️ Write your own question</Text>
-                        </BlurView>
+                    <Pressable onPress={() => navigation.navigate("Question", { category: "Custom", firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online })}>
+                        {({ pressed }) => (
+                            <BlurView intensity={75} tint="light" style={[styles.category, { marginBottom: 60, backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
+                                <Text style={styles.categoryText}>✏️ Write your own question</Text>
+                            </BlurView>
+                        )}
                     </Pressable>
                     <Pressable>
-                        <BlurView intensity={75} style={[styles.category, { alignSelf: 'flex-start', marginLeft: '7.5%', width: '35%', height: 35, backgroundColor: 'rgba(255, 255, 255, 0.35)' }]}>
-                            <Text style={{ fontFamily: regFont, fontSize: 14 }}>+/- categories</Text>
-                        </BlurView>
+                        {({ pressed }) => (
+                            <BlurView intensity={75} style={[styles.category, { alignSelf: 'flex-start', marginLeft: '7.5%', width: '35%', height: 35, backgroundColor: pressed ? 'rgba(255, 255, 255, 0.25)' : "rgba(255, 255, 255, 0.35)" }]}>
+                                <Text style={{ fontFamily: regFont, fontSize: 14 }}>+/- categories</Text>
+                            </BlurView>
+                        )}
                     </Pressable>
-                    <FlatList data={categories} renderItem={renderCategories} />
+                    <FlatList data={categories} renderItem={renderCategories} keyExtractor={(item) => item.name} />
 
                 </SafeAreaView>
             </LinearGradient>
@@ -145,45 +169,73 @@ export default function Home(props) {
         var displayQuestion = '';
         if (route.params.category === "Custom") {
             const [text, onChangeText] = React.useState("");
+            var textLength = text.length;
 
             displayQuestion = <View>
-                <Text style={styles.categoriesTitle}>Write your daily question to {route.params.firstName} {route.params.lastName}:</Text>
-
-                <BlurView intensity={75} tint="light" style={styles.question}>
+                <Pressable onPress={() => navigation.navigate("PastQuestions", {})} >
+                    {({ pressed }) => (
+                        <BlurView intensity={75} tint="light" style={[styles.send, { marginTop: 60, width: 250, backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
+                            <Text style={styles.categoryText}>VIEW PAST QUESTIONS</Text>
+                        </BlurView>
+                    )}
+                </Pressable>
+                <BlurView intensity={75} tint="light" style={[styles.question, { height: 320, marginTop: 20 }]}>
+                    <TextInput style={{ position: 'absolute', top: 15, left: 15, fontFamily: regFont, fontSize: 14 }}>{route.params.category}</TextInput>
                     <TextInput
                         value={text}
                         onChangeText={onChangeText}
                         placeholder="Example: What was your first impression of me?"
                         style={styles.questionText}
+                        maxLength={150}
                         multiline={true} />
+                    <TextInput style={{ position: 'absolute', bottom: 15, right: 15, fontFamily: regFont, fontSize: 14 }}>{textLength}/150</TextInput>
                 </BlurView></View>;
         }
         else {
             displayQuestion = <>
-                <Text style={styles.categoriesTitle}>Your daily question to {route.params.firstName} {route.params.lastName}:</Text>
                 <BlurView intensity={75} tint="light" style={styles.question}>
+                    <TextInput style={{ position: 'absolute', top: 15, left: 15, fontFamily: regFont, fontSize: 14 }}>{route.params.category}</TextInput>
                     <Text style={styles.questionText}>{question}</Text>
                 </BlurView></>;
         }
 
         const [sendButton, setSendButton] = useState("Send →");
-        const [afterSent, setAfterSent] = useState(<Text></Text>);
-        var renderAfterSent = <><Pressable onPress={() => navigation.navigate("ChooseContact")}>
+        const [sent, setSent] = useState(<View></View>);
+
+        var renderConfirm = <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
+            <Pressable onPress={() => { setSendButton("Send →"); setSent(<View></View>) }}>
+                <View style={[styles.send, { marginTop: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>NO</Text>
+                </View>
+            </Pressable>
+            <Pressable onPress={() => { setSendButton("Sent!"); setSent(renderSent) }}>
+                <View style={[styles.send, { marginTop: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>YES</Text>
+                </View>
+            </Pressable>
+        </View>;
+
+        var renderSent = <><Pressable onPress={() => navigation.navigate("ChooseContact", { data: props.data })}>
             <View style={[styles.send, { marginTop: 20 }]}>
                 <Text style={styles.sendText}>Send another question</Text>
             </View>
         </Pressable></>;
+
         return (
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
                     <SafeAreaView>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 45, }}>
+                            {imageRender(route.params)}
+                            <Text style={{ alignSelf: 'center', fontFamily: regFont, fontSize: 16, color: 'white' }}> {route.params.firstName} {route.params.lastName}</Text>
+                        </View>
                         {displayQuestion}
-                        <Pressable onPress={() => { setSendButton("Sent!"); setAfterSent(renderAfterSent) }}>
+                        <Pressable onPress={() => { setSendButton("Are you sure?"); setSent(renderConfirm) }}>
                             <View style={styles.send}>
                                 <Text style={styles.sendText}>{sendButton}</Text>
                             </View>
                         </Pressable>
-                        {afterSent}
+                        {sent}
                     </SafeAreaView>
                 </LinearGradient>
             </TouchableWithoutFeedback>
@@ -205,9 +257,9 @@ export default function Home(props) {
         }
         }>
             <HomeStack.Screen options={{ headerShown: false }} name="HomeDefault" component={HomeDefault} />
-            <HomeStack.Screen options={{ headerTitle: "Choose a contact", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 20 } }} name="ChooseContact" component={ChooseContact} />
-            <HomeStack.Screen options={{ headerTitle: "Choose a category", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 20 } }} name="Categories" component={Categories} />
-            <HomeStack.Screen options={{}} name="Question" component={Question} />
+            <HomeStack.Screen options={{ headerTitle: "Choose a contact", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="ChooseContact" component={ChooseContact} />
+            <HomeStack.Screen options={{ headerTitle: "Daily Question to", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="Categories" component={Categories} />
+            <HomeStack.Screen options={{ headerTitle: "Daily Question to", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="Question" component={Question} />
         </HomeStack.Navigator>
     )
 }
@@ -265,7 +317,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 40,
         overflow: 'hidden',
-        backgroundColor: 'rgba(255, 255, 255, 0.55)'
+        backgroundColor: 'rgba(255, 255, 255, 0.55)',
+        marginTop: 60,
     },
     questionText: {
         fontFamily: regFont,

@@ -36,6 +36,7 @@ export default function App() {
 
         if (data.length > 0) {
           setContactsData(data);
+
         }
       }
     })();
@@ -58,6 +59,14 @@ export default function App() {
   if (!ContactsData || !fontsLoaded) {
     return <AppLoading />;
   } else {
+    for (var i = 0; i < ContactsData.length; i++) {
+      if (Math.random() < 0.3) {
+        ContactsData[i].online = true;
+      }
+      else {
+        ContactsData[i].online = false;
+      }
+    }
     return (
       <NavigationContainer>
         <Tab.Navigator screenOptions={{
@@ -77,10 +86,12 @@ export default function App() {
           }} children={() => <Home data={ContactsData} />} />
           <Tab.Screen name="Questions" options={{
             tabBarStyle: { backgroundColor: "rgba(255, 255, 255, 0)", borderTopColor: 'transparent' },
+            tabBarBadge: 2,
             tabBarIcon: ({ color }) => (<Icon name='pencil-box-multiple' color={color} size={35} />)
           }} children={() => <Questions data={ContactsData} />} />
           <Tab.Screen name="Open" options={{
             tabBarStyle: { backgroundColor: "rgba(255, 255, 255, 0)", borderTopColor: 'transparent' },
+            tabBarBadge: 5,
             tabBarIcon: ({ color }) => (<Icon name='inbox' color={color} size={35} />)
           }} component={Open} />
           <Tab.Screen name="RapidFire" options={{
