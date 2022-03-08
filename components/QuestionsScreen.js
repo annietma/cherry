@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { TabRouter, CancelButton } from 'react-navigation';
-import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Button, StatusBar } from 'react-native';
+import { Animated, Circle, StyleSheet, Text, View, TouchableOpacity, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Button, StatusBar } from 'react-native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -15,7 +15,7 @@ import { BlurView } from 'expo-blur';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ScrollView } from 'react-native-gesture-handler';
-
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 var regFont = 'Nunito_500Medium';
 var gradient = ['#ff4a86', '#fe9a55', '#fec759'];
@@ -252,7 +252,6 @@ export default function Questions(props) {
     }
 
     function PhotoRespond({ route }) {
-
         const takePicture = async () => {
             const [status, requestPermission] = ImagePicker.useCameraPermissions();
             let result = await ImagePicker.launchCameraAsync({
@@ -357,6 +356,102 @@ export default function Questions(props) {
     }
 
     function AudioRespond({ route }) {
+        const animation = new Animated.Value(0);
+        const inputRange = [0, 1];
+        const outputRange = [1, 0.8];
+        const scale = animation.interpolate({ inputRange, outputRange });
+        var timer = useRef(null);
+        var [fill, setFill] = useState(0);
+        var [paused, setPaused] = useState(false);
+        var [memoDone, setMemoDone] = useState(false);
+        var [recordIcon, setRecordIcon] = useState(<Icon name='microphone' size={40} />)
+
+        useEffect(() => {
+            if (fill >= 100) {
+                setMemoDone(true);
+                setRecordIcon(<Icon name='microphone' size={40} />);
+                clearTimeout(timer.current);
+            }
+        }, [fill]);
+
+        function onPressInMic() {
+            function fillUp() {
+                setFill((prevValue) => prevValue + 1);
+                timer.current = setTimeout(fillUp, 100);
+            }
+            setPaused(false);
+            setRecordIcon(<Icon name='microphone-outline' color='#ff4a86' size={40} />);
+            fillUp();
+            Animated.spring(animation, {
+                toValue: 1,
+                useNativeDriver: true,
+            }).start();
+        };
+
+        const onPressOutMic = () => {
+            Animated.spring(animation, {
+                toValue: 0,
+                useNativeDriver: true,
+            }).start();
+            clearTimeout(timer.current);
+            setPaused(true);
+            setRecordIcon(<Icon name='microphone' size={40} />);
+        };
+
+        var [sendButton, setSendButton] = useState("Send →");
+        var [border, setBorder] = useState(true);
+        var [lowerButtons, setLowerButtons] = useState(<View></View>);
+
+        function renderSendButton(buttonText, border) {
+            if (buttonText === "Sent!") {
+                return (
+                    <View style={[styles.send, { borderWidth: 0, marginBottom: border ? 30 : 0 }]}>
+                        <Text style={styles.sendText}>{buttonText}</Text>
+                    </View>
+                )
+            }
+            if (buttonText === "Send?") {
+                return (
+                    <Pressable onPress={() => { setSendButton("Send?"); setLowerButtons(renderConfirm); setBorder(false) }}>
+                        <View style={[styles.send, { borderWidth: border ? 1 : 0, marginBottom: border ? 20 : 0 }]}>
+                            <Text style={[styles.sendText]}>{buttonText}</Text>
+                        </View>
+                    </Pressable>
+                )
+            }
+            return (
+                <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
+                    <Pressable onPress={() => { setFill(0); setPaused(false); setMemoDone(false) }}>
+                        <View style={[styles.send, { marginTop: 20, marginBottom: 20, marginRight: 0, width: 120 }]}>
+                            <Text style={styles.sendText}>Re-record</Text>
+                        </View>
+                    </Pressable>
+                    <Pressable onPress={() => { setSendButton("Send?"); setLowerButtons(renderConfirm); setBorder(false) }}>
+                        <View style={[styles.send, { marginTop: 20, marginBottom: 20, marginRight: 0, width: 120 }]}>
+                            <Text style={styles.sendText}>Send →</Text>
+                        </View>
+                    </Pressable>
+                </View>
+            )
+        }
+
+        var renderConfirm = <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
+            <Pressable onPress={() => { setSendButton("Send →"); setLowerButtons(<View></View>); setBorder(true) }}>
+                <View style={[styles.send, { marginTop: 20, marginBottom: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>NO</Text>
+                </View>
+            </Pressable>
+            <Pressable onPress={() => { setSendButton("Sent!"); setLowerButtons(renderSent) }}>
+                <View style={[styles.send, { marginTop: 20, marginBottom: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>YES</Text>
+                </View>
+            </Pressable>
+        </View>;
+        var renderSent = <><Pressable onPress={() => navigation.navigate("QuestionsDefault", { data: props.data })}>
+            <View style={[styles.send, { marginTop: 20, marginBottom: 20 }]}>
+                <Text style={styles.sendText}>Back to Questions</Text>
+            </View>
+        </Pressable></>;
 
         return (
             <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
@@ -370,11 +465,30 @@ export default function Questions(props) {
                             <Text style={[styles.questionText, { fontSize: 18, lineHeight: 28 }]}>{route.params.question}</Text>
                         </View>
                     </BlurView>
-                    <BlurView intensity={75} tint="light" style={{ backgroundColor: 'rgba(255, 255, 255, 0.35)', marginTop: 200, height: 90, width: 90, borderRadius: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-                        <Icon name='microphone' size={40} />
-                    </BlurView>
+                    <View style={{ marginTop: 60, justifyContent: 'center', alignItems: 'center', }}>
+                        {fill > 0 && <AnimatedCircularProgress
+                            style={{ position: 'absolute' }}
+                            lineCap="round"
+                            size={120}
+                            width={5}
+                            fill={fill}
+                            tintColor='white'
+                            backgroundColor='rgba(255, 255, 255, 0.35)'
+                            borderRadius={10} />}
+                        <Pressable onPressIn={onPressInMic} onPressOut={onPressOutMic}>
+                            <Animated.View style={[{ transform: [{ scale }] }]}>
+                                <BlurView intensity={75} tint="light" style={{ backgroundColor: 'rgba(255, 255, 255, 0.35)', height: 90, width: 90, borderRadius: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                                    {recordIcon}
+                                </BlurView>
+                            </Animated.View>
+                        </Pressable>
+                    </View>
+                    {paused === true && memoDone === false && <Text style={{ marginTop: 30, alignSelf: 'center', fontFamily: regFont, color: 'white' }}>Press mic to keep recording</Text>}
+                    {memoDone === true && <Text style={{ marginTop: 30, alignSelf: 'center', fontFamily: regFont, color: 'white' }}>Time limit met</Text>}
+                    {(paused === true || memoDone === true) && renderSendButton(sendButton, border)}
+                    {(paused === true || memoDone === true) && lowerButtons}
                 </SafeAreaView >
-            </LinearGradient>
+            </LinearGradient >
         )
     }
 

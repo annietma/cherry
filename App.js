@@ -7,6 +7,7 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from './components/HomeScreen';
 import Questions from './components/QuestionsScreen';
+import Responses from './components/ResponsesScreen';
 import * as Contacts from 'expo-contacts';
 import AppLoading from 'expo-app-loading';
 import { useFonts, PlayfairDisplay_800ExtraBold_Italic, } from '@expo-google-fonts/playfair-display';
@@ -37,12 +38,6 @@ export default function App() {
     })();
   }, []);
 
-  function Open() {
-    return (
-      <Text>Open</Text>
-    )
-  }
-
   function RapidFire() {
     return (
       <Text>RapidFire</Text>
@@ -68,6 +63,12 @@ export default function App() {
       "What was your worst date ever?",
       "How do you handle stress?",
       "Where do you want to live before you settle down?"];
+
+    var answered = ["What are you currently trying to improve about yourself?",
+      "What's a place that means a lot to you?",
+      "What does your mood look like right now?",
+      "When did you feel at your highest this week?"];
+    var responses = ["I'm trying to be less negative about things that mess up my day or my mood. "]
 
     for (var i = 0; i < 6; i += ContactsData.length / 6) {
       ContactsData[i].question = questions[i];
@@ -99,7 +100,7 @@ export default function App() {
             tabBarStyle: { backgroundColor: "rgba(255, 255, 255, 0)", borderTopColor: 'transparent' },
             tabBarBadge: 5,
             tabBarIcon: ({ color }) => (<Icon name='inbox' color={color} size={35} />)
-          }} component={Open} />
+          }} children={() => <Responses data={ContactsData} />} />
           <Tab.Screen name="RapidFire" options={{
             tabBarStyle: { backgroundColor: "rgba(255, 255, 255, 0)", borderTopColor: 'transparent' },
             tabBarIcon: ({ color }) => (<Icon name='fire' color={color} size={35} />)

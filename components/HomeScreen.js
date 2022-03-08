@@ -9,9 +9,6 @@ import AppLoading from 'expo-app-loading';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 var regFont = 'Nunito_500Medium';
-
-
-
 var gradient = ['#ff4a86', '#fe9a55', '#fec759'];
 var locations = [0.2, 0.8, 1];
 
@@ -55,7 +52,7 @@ export default function Home(props) {
                                 {image}
                                 <Text style={{ marginLeft: 7, fontFamily: regFont }}>{contact.firstName} {subtitle}</Text>
                             </View>
-                            <Text style={{ textAlign: 'center', fontFamily: regFont, fontSize: 16, width: '90%', alignSelf: 'center', marginTop: 20, }}>{bodyText}</Text>
+                            <Text style={{ textAlign: 'center', fontFamily: regFont, fontSize: 18, width: '90%', alignSelf: 'center', marginTop: 20, }}>{bodyText}</Text>
                         </BlurView>
                     </View>
                 </>
@@ -75,11 +72,12 @@ export default function Home(props) {
                         {cardBlock("New Questions", firstContact, "asked:", "What are you most excited about in the coming weeks?")}
                         {cardBlock("New Responses", lastContact, "responded:", "Where do you want to live before you settle down?")}
                         <View style={{ alignItems: 'center' }}>
+
                             <Pressable onPress={() => navigation.navigate("ChooseContact", { data: props.data })} >
                                 {({ pressed }) => (
-                                    <View style={[styles.send, { width: 250, marginTop: pressed ? 75 : 70 }]}>
-                                        <Text style={styles.sendText}>SEND A QUESTION</Text>
-                                    </View>
+                                    <BlurView intensity={75} tint="light" style={[styles.send, { width: 250, overflow: 'hidden', marginTop: pressed ? 75 : 70, backgroundColor: 'rgba(255, 255, 255, 0.35)' }]}>
+                                        <Text style={[styles.sendText, { color: 'black' }]}>SEND A QUESTION</Text>
+                                    </BlurView>
                                 )}
                             </Pressable>
                         </View>
