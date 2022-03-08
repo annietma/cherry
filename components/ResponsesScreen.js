@@ -11,6 +11,8 @@ import { BlurView } from 'expo-blur';
 var regFont = 'Nunito_500Medium';
 var gradient = ['#ff4a86', '#fe9a55', '#fec759'];
 var locations = [0.2, 0.8, 1];
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 
 export default function Responses(props) {
     const ResponsesStack = createStackNavigator();
@@ -58,6 +60,15 @@ export default function Responses(props) {
     }
 
     function ViewResponse({ route }) {
+        var response = <Text style={[styles.questionText, { fontSize: 18, lineHeight: 30, marginTop: 80 }]}>{route.params.response.response}</Text>;
+        var responseHeight = 240;
+        if (route.params.response.responseType === 'image' || route.params.response.responseType === 'drawing') {
+            response = <Image style={{ height: route.params.response.responseType === 'image' ? 200 : 260, width: '95%', borderRadius: 20, resizeMode: 'cover', marginTop: 60 }} source={route.params.response.response} />
+            responseHeight = route.params.response.responseType === 'image' ? 280 : 340;
+        }
+        if (route.params.response.responseType === 'audio') {
+            responseHeight = 150;
+        }
         return (
             <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
                 <SafeAreaView>
@@ -70,15 +81,16 @@ export default function Responses(props) {
                             <Text style={[styles.questionText, { fontSize: 18, lineHeight: 28 }]}>{route.params.response.answered}</Text>
                         </View>
                     </BlurView>
-                    <View style={styles.questionCardTopBar}>
-                        {imageRender(route.params)}
-                        <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} responded:</Text>
-                    </View>
-                    <BlurView intensity={75} tint="light" style={[styles.question, { marginTop: 20, height: 300 }]}>
-
-                        <Text style={[styles.questionText, { fontSize: 18, lineHeight: 30 }]}>{route.params.response.response}</Text>
+                    <BlurView intensity={75} tint="light" style={[styles.question, { justifyContent: 'flex-start', marginTop: 20, height: responseHeight }]}>
+                        <View style={styles.questionCardTopBar}>
+                            {imageRender(route.params)}
+                            <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} responded:</Text>
+                        </View>
+                        {response}
                     </BlurView>
-
+                    <BlurView intensity={75} tint="light" style={{ height: 100, width: 100, alignSelf: 'flex-end' }}>
+                        <Icon name='share' size={40} />
+                    </BlurView>
                 </SafeAreaView>
             </LinearGradient>
         )
@@ -98,7 +110,7 @@ export default function Responses(props) {
             },
             animationEnabled: false,
         }}>
-            <ResponsesStack.Screen options={{ headerTitle: "New Responses", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="ResponsesDefault" component={ResponsesDefault} />
+            <ResponsesStack.Screen options={{ headerTitle: "Today's Responses", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="ResponsesDefault" component={ResponsesDefault} />
             <ResponsesStack.Screen options={{}} name="ViewResponse" component={ViewResponse} />
 
         </ResponsesStack.Navigator>

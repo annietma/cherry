@@ -508,7 +508,7 @@ export default function Questions(props) {
             },
             animationEnabled: false,
         }}>
-            <QuestionsStack.Screen options={{ headerTitle: "New Questions", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="QuestionsDefault" component={QuestionsDefault} />
+            <QuestionsStack.Screen options={{ headerTitle: "Today's Questions", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="QuestionsDefault" component={QuestionsDefault} />
             <QuestionsStack.Screen options={{}} name="ViewQuestion" component={ViewQuestion} />
             <QuestionsStack.Screen options={{}} name="TextRespond" component={TextRespond} />
             <QuestionsStack.Screen options={{}} name="DrawingRespond" component={DrawingRespond} />

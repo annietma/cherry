@@ -27,8 +27,8 @@ var questions = ["What are you most excited about in the coming weeks?",
   "Where do you want to live before you settle down?"];
 
 var responses = [{ answered: "What are you currently trying to improve about yourself?", responseType: 'text', response: "I'm trying to be less negative about things that mess up my day or my mood. " },
-{ answered: "What's a place that means a lot to you?", responseType: 'image', response: '../assets/legoland.jpg' },
-{ answered: "What does your mood look like right now?", responseType: 'drawing', response: '../assets/mood.jpeg' },
+{ answered: "What's a place that means a lot to you?", responseType: 'image', response: require('./assets/legoland.jpg'), },
+{ answered: "What does your mood look like right now?", responseType: 'drawing', response: require('./assets/mood.jpeg'), },
 { answered: "When did you feel at your highest this week?", responseType: 'audio' }];
 
 export default function App() {
