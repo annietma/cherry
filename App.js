@@ -19,6 +19,18 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Tab = createBottomTabNavigator();
 
+var questions = ["What are you most excited about in the coming weeks?",
+  "What's a unique mannerism of mine?",
+  "What's one time you stepped totally out of your comfort zone?",
+  "What was your worst date ever?",
+  "How do you handle stress?",
+  "Where do you want to live before you settle down?"];
+
+var responses = [{ answered: "What are you currently trying to improve about yourself?", responseType: 'text', response: "I'm trying to be less negative about things that mess up my day or my mood. " },
+{ answered: "What's a place that means a lot to you?", responseType: 'image', response: '../assets/legoland.jpg' },
+{ answered: "What does your mood look like right now?", responseType: 'drawing', response: '../assets/mood.jpeg' },
+{ answered: "When did you feel at your highest this week?", responseType: 'audio' }];
+
 export default function App() {
 
   const [ContactsData, setContactsData] = useState("");
@@ -57,22 +69,19 @@ export default function App() {
         ContactsData[i].online = false;
       }
     }
-    var questions = ["What are you most excited about in the coming weeks?",
-      "What's a unique mannerism of mine?",
-      "What's one time you stepped totally out of your comfort zone?",
-      "What was your worst date ever?",
-      "How do you handle stress?",
-      "Where do you want to live before you settle down?"];
 
-    var answered = ["What are you currently trying to improve about yourself?",
-      "What's a place that means a lot to you?",
-      "What does your mood look like right now?",
-      "When did you feel at your highest this week?"];
-    var responses = ["I'm trying to be less negative about things that mess up my day or my mood. "]
-
-    for (var i = 0; i < 6; i += ContactsData.length / 6) {
-      ContactsData[i].question = questions[i];
+    var j = 0;
+    for (var i = 0; i < 6; i++) {
+      ContactsData[j].question = questions[i];
+      j += ContactsData.length / 6;
     }
+
+    j = 0;
+    for (var i = 0; i < 4; i++) {
+      ContactsData[j].response = responses[i];
+      j += ContactsData.length / 6;
+    }
+
     return (
       <NavigationContainer>
         <Tab.Navigator screenOptions={{

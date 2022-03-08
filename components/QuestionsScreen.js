@@ -28,8 +28,10 @@ export default function Questions(props) {
     const navigation = useNavigation();
 
     var contactsWithQuestions = [];
-    for (var i = 0; i < 6; i += props.data.length / 6) {
+    var j = 0;
+    for (var i = 0; i < 6; i++) {
         contactsWithQuestions.push(props.data[i]);
+        j += props.data.length / 6;
     }
 
     function imageRender(contact) {
@@ -506,7 +508,7 @@ export default function Questions(props) {
             },
             animationEnabled: false,
         }}>
-            <QuestionsStack.Screen options={{ headerTitle: "Respond to Questions", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="QuestionsDefault" component={QuestionsDefault} />
+            <QuestionsStack.Screen options={{ headerTitle: "New Questions", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="QuestionsDefault" component={QuestionsDefault} />
             <QuestionsStack.Screen options={{}} name="ViewQuestion" component={ViewQuestion} />
             <QuestionsStack.Screen options={{}} name="TextRespond" component={TextRespond} />
             <QuestionsStack.Screen options={{}} name="DrawingRespond" component={DrawingRespond} />

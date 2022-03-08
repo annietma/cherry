@@ -28,13 +28,32 @@ export default function ContactList(props) {
         if (props.onPressContact === "ViewQuestion") {
             onPressContact = () => navigation.navigate("ViewQuestion", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, question: props.question });
         }
+        if (props.onPressContact === "ViewResponse") {
+            onPressContact = () => navigation.navigate("ViewResponse", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, response: props.response });
+        }
+
+        if (props.response) {
+            var response = props.response.response;
+            if (props.response.responseType === 'image') {
+                response = '(tap to view image)';
+            }
+            else if (props.response.responseType === 'drawing') {
+                response = '(tap to view drawing)';
+            }
+            else if (props.response.responseType === 'audio') {
+                response = '(tap to listen)';
+            }
+        }
+
 
         return (
             <Pressable style={props.contactStyle} onPress={onPressContact}>
                 {imageRender}
                 <View style={{ flexDirection: 'column', width: 280 }}>
                     <Text style={[props.nameStyle, { fontFamily: 'Nunito_700Bold' }]}>{props.firstName} {props.lastName}</Text>
-                    {props.showQuestion === true ? <Text style={[props.nameStyle, { color: 'rgba(255, 255, 255, 0.65)' }]} numberOfLines={1}>{props.question}</Text> : <View></View>}
+                    {props.showQuestion === true && <Text style={[props.nameStyle, { color: 'rgba(255, 255, 255, 0.65)' }]} numberOfLines={1}>{props.question}</Text>}
+                    {props.showResponse === true && <Text style={[props.nameStyle, { color: 'rgba(255, 255, 255, 0.65)' }]} numberOfLines={1}>Q: {props.response.answered}</Text>}
+                    {props.showResponse === true && <Text style={[props.nameStyle, { color: 'rgba(255, 255, 255, 0.65)' }]} numberOfLines={1}>A: {response}</Text>}
                 </View>
             </Pressable>
         );
@@ -61,6 +80,8 @@ export default function ContactList(props) {
             onPressContact={props.onPressContact}
             question={item.question}
             showQuestion={props.showQuestion}
+            showResponse={props.showResponse}
+            response={item.response}
             id={props.id}
         />;
     };
