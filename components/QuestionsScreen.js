@@ -30,8 +30,8 @@ export default function Questions(props) {
     var contactsWithQuestions = [];
     var j = 0;
     for (var i = 0; i < 6; i++) {
-        contactsWithQuestions.push(props.data[i]);
-        j += props.data.length / 6;
+        contactsWithQuestions.push(props.data[j]);
+        j += Math.floor(props.data.length / 6);
     }
 
     function imageRender(contact) {

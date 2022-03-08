@@ -29,7 +29,7 @@ export default function ContactList(props) {
             onPressContact = () => navigation.navigate("ViewQuestion", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, question: props.question });
         }
         if (props.onPressContact === "ViewResponse") {
-            onPressContact = () => navigation.navigate("ViewResponse", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, response: props.response });
+            onPressContact = () => navigation.navigate("ViewResponse", { phone: props.phone, firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, response: props.response });
         }
 
         if (props.response) {
@@ -82,6 +82,7 @@ export default function ContactList(props) {
             showQuestion={props.showQuestion}
             showResponse={props.showResponse}
             response={item.response}
+            phone={item.phoneNumbers[0].number}
             id={props.id}
         />;
     };

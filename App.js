@@ -73,13 +73,13 @@ export default function App() {
     var j = 0;
     for (var i = 0; i < 6; i++) {
       ContactsData[j].question = questions[i];
-      j += ContactsData.length / 6;
+      j += Math.floor(ContactsData.length / 6);
     }
 
     j = 0;
     for (var i = 0; i < 4; i++) {
       ContactsData[j].response = responses[i];
-      j += ContactsData.length / 6;
+      j += Math.floor(ContactsData.length / 4);
     }
 
     return (

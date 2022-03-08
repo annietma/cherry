@@ -12,6 +12,9 @@ var regFont = 'Nunito_500Medium';
 var gradient = ['#ff4a86', '#fe9a55', '#fec759'];
 var locations = [0.2, 0.8, 1];
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as SMS from 'expo-sms';
+
+
 
 
 export default function Responses(props) {
@@ -21,8 +24,8 @@ export default function Responses(props) {
     var contactsWithResponses = [];
     var j = 0;
     for (var i = 0; i < 4; i++) {
-        contactsWithResponses.push(props.data[i]);
-        j += props.data.length / 4;
+        contactsWithResponses.push(props.data[j]);
+        j += Math.floor(props.data.length / 4);
     }
 
     function imageRender(contact) {
@@ -69,6 +72,19 @@ export default function Responses(props) {
         if (route.params.response.responseType === 'audio') {
             responseHeight = 150;
         }
+
+        shareResponse = async () => {
+            const isAvailable = SMS.isAvailableAsync();
+            if (isAvailable) {
+                const { result } = await SMS.sendSMSAsync(
+                    [route.params.phone],
+                    'My sample HelloWorld message'
+                );
+            } else {
+                console.log('rip');
+            }
+
+        }
         return (
             <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
                 <SafeAreaView>
@@ -88,9 +104,11 @@ export default function Responses(props) {
                         </View>
                         {response}
                     </BlurView>
-                    <BlurView intensity={75} tint="light" style={{ height: 100, width: 100, alignSelf: 'flex-end' }}>
-                        <Icon name='share' size={40} />
-                    </BlurView>
+                    <Pressable onPress={shareResponse}>
+                        <BlurView intensity={75} tint="light" style={{ marginTop: 20, height: 50, width: 80, borderRadius: 20, borderWidth: 1, borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.35)', overflow: 'hidden', alignSelf: 'flex-end', marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
+                            <Icon name='share' size={30} />
+                        </BlurView>
+                    </Pressable>
                 </SafeAreaView>
             </LinearGradient>
         )
