@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, StatusBar } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import ContactList from './Contacts';
@@ -48,9 +48,9 @@ export default function Home(props) {
                 <>
                     <Text style={{ fontFamily: regFont, fontSize: 20, marginTop: 30, marginBottom: 5, marginLeft: '5%', color: 'white' }}>{title}</Text>
                     <View style={{ width: '90%', alignSelf: 'center', alignItems: 'center', flexDirection: 'row' }}>
-                        <View style={{ height: 135, width: '70%', backgroundColor: 'rgba(255, 255, 255, 0.45)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)', position: 'absolute', right: 0 }} />
+                        <View style={{ height: 155, width: '70%', backgroundColor: 'rgba(255, 255, 255, 0.45)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)', position: 'absolute', right: 0 }} />
                         <BlurView intensity={75} tint="light"
-                            style={{ overflow: 'hidden', backgroundColor: 'rgba(255, 255, 255, 0.55)', height: 150, width: '94%', justifyContent: 'center', borderWidth: 1, borderColor: 'white', borderRadius: 25, }}>
+                            style={{ overflow: 'hidden', backgroundColor: 'rgba(255, 255, 255, 0.55)', height: 180, width: '94%', justifyContent: 'center', borderWidth: 1, borderColor: 'white', borderRadius: 25, }}>
                             <View style={{ flexDirection: 'row', position: 'absolute', top: 0, alignItems: 'center', marginLeft: 10, marginTop: 10, }}>
                                 {image}
                                 <Text style={{ marginLeft: 7, fontFamily: regFont }}>{contact.firstName} {subtitle}</Text>
@@ -77,9 +77,9 @@ export default function Home(props) {
                         <View style={{ alignItems: 'center' }}>
                             <Pressable onPress={() => navigation.navigate("ChooseContact", { data: props.data })} >
                                 {({ pressed }) => (
-                                    <BlurView intensity={75} tint="light" style={[styles.send, { marginTop: 120, width: 250, backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
-                                        <Text style={styles.categoryText}>SEND A QUESTION</Text>
-                                    </BlurView>
+                                    <View style={[styles.send, { width: 250, marginTop: pressed ? 75 : 70 }]}>
+                                        <Text style={styles.sendText}>SEND A QUESTION</Text>
+                                    </View>
                                 )}
                             </Pressable>
                         </View>
@@ -165,12 +165,13 @@ export default function Home(props) {
                 return category.name === route.params.category;
             }).question;
         }
-
+        var [sendButton, setSendButton] = useState("Send →");
+        var [border, setBorder] = useState(true);
+        var [lowerButtons, setLowerButtons] = useState(<View></View>);
+        const [text, onChangeText] = React.useState("");
+        var textLength = text.length;
         var displayQuestion = '';
         if (route.params.category === "Custom") {
-            const [text, onChangeText] = React.useState("");
-            var textLength = text.length;
-
             displayQuestion = <View>
                 <Pressable onPress={() => navigation.navigate("PastQuestions", {})} >
                     {({ pressed }) => (
@@ -180,35 +181,59 @@ export default function Home(props) {
                     )}
                 </Pressable>
                 <BlurView intensity={75} tint="light" style={[styles.question, { height: 320, marginTop: 20 }]}>
-                    <TextInput style={{ position: 'absolute', top: 15, left: 15, fontFamily: regFont, fontSize: 14 }}>{route.params.category}</TextInput>
                     <TextInput
                         value={text}
                         onChangeText={onChangeText}
                         placeholder="Example: What was your first impression of me?"
+                        textAlign={'center'}
+                        textAlignVertical={'center'}
                         style={styles.questionText}
                         maxLength={150}
                         multiline={true} />
-                    <TextInput style={{ position: 'absolute', bottom: 15, right: 15, fontFamily: regFont, fontSize: 14 }}>{textLength}/150</TextInput>
+                    <Text style={{ position: 'absolute', bottom: 15, right: 15, fontFamily: regFont, fontSize: 14 }}>{textLength}/150</Text>
                 </BlurView></View>;
         }
         else {
             displayQuestion = <>
                 <BlurView intensity={75} tint="light" style={styles.question}>
-                    <TextInput style={{ position: 'absolute', top: 15, left: 15, fontFamily: regFont, fontSize: 14 }}>{route.params.category}</TextInput>
+                    <Text style={{ position: 'absolute', top: 15, left: 15, fontFamily: regFont, fontSize: 14 }}>{route.params.category}</Text>
                     <Text style={styles.questionText}>{question}</Text>
                 </BlurView></>;
         }
 
-        const [sendButton, setSendButton] = useState("Send →");
-        const [sent, setSent] = useState(<View></View>);
+        function renderSendButton(buttonText, border) {
+            if (buttonText === "Sent!") {
+                return (
+                    <View style={[styles.send, { borderWidth: border ? 1 : 0 }]}>
+                        <Text style={styles.sendText}>{buttonText}</Text>
+                    </View>
+                )
+            }
+            else if (route.params.category === "Custom") {
+                return (
+                    <Pressable onPress={text.length > 0 ? () => { setSendButton("Send?"); setLowerButtons(renderConfirm); setBorder(false) } : () => { }}>
+                        <View style={[styles.send, { borderWidth: border ? 1 : 0, borderColor: text.length > 0 ? 'white' : 'rgba(255, 255, 255, 0.5)' }]}>
+                            <Text style={[styles.sendText, { color: text.length > 0 ? 'white' : 'rgba(255, 255, 255, 0.5)' }]}>{buttonText}</Text>
+                        </View>
+                    </Pressable>
+                )
+            }
+            return (
+                <Pressable onPress={() => { setSendButton("Send?"); setLowerButtons(renderConfirm); setBorder(false) }}>
+                    <View style={[styles.send, { borderWidth: border ? 1 : 0 }]}>
+                        <Text style={styles.sendText}>{buttonText}</Text>
+                    </View>
+                </Pressable>
+            )
+        }
 
         var renderConfirm = <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
-            <Pressable onPress={() => { setSendButton("Send →"); setSent(<View></View>) }}>
+            <Pressable onPress={() => { setSendButton("Send →"); setLowerButtons(<View></View>); setBorder(true) }}>
                 <View style={[styles.send, { marginTop: 20, marginRight: 0, width: 120 }]}>
                     <Text style={styles.sendText}>NO</Text>
                 </View>
             </Pressable>
-            <Pressable onPress={() => { setSendButton("Sent!"); setSent(renderSent) }}>
+            <Pressable onPress={() => { setSendButton("Sent!"); setLowerButtons(renderSent) }}>
                 <View style={[styles.send, { marginTop: 20, marginRight: 0, width: 120 }]}>
                     <Text style={styles.sendText}>YES</Text>
                 </View>
@@ -230,12 +255,8 @@ export default function Home(props) {
                             <Text style={{ alignSelf: 'center', fontFamily: regFont, fontSize: 16, color: 'white' }}> {route.params.firstName} {route.params.lastName}</Text>
                         </View>
                         {displayQuestion}
-                        <Pressable onPress={() => { setSendButton("Are you sure?"); setSent(renderConfirm) }}>
-                            <View style={styles.send}>
-                                <Text style={styles.sendText}>{sendButton}</Text>
-                            </View>
-                        </Pressable>
-                        {sent}
+                        {renderSendButton(sendButton, border)}
+                        {lowerButtons}
                     </SafeAreaView>
                 </LinearGradient>
             </TouchableWithoutFeedback>
@@ -243,6 +264,7 @@ export default function Home(props) {
     }
 
     return (
+
         <HomeStack.Navigator screenOptions={{
             headerBackTitle: " ",
             headerTitle: " ",
@@ -253,7 +275,8 @@ export default function Home(props) {
             },
             cardStyle: {
                 backgroundColor: 'white'
-            }
+            },
+            animationEnabled: false,
         }
         }>
             <HomeStack.Screen options={{ headerShown: false }} name="HomeDefault" component={HomeDefault} />

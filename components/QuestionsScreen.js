@@ -1,132 +1,380 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, useRef } from 'react';
 import { TabRouter, CancelButton } from 'react-navigation';
-import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, TextInput, AppRegistry, Alert, Button } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Button, StatusBar } from 'react-native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Contacts from 'expo-contacts';
 import ContactList from './Contacts';
 import Sketch from 'react-native-sketch';
+import { useFonts, PlayfairDisplay_800ExtraBold_Italic, } from '@expo-google-fonts/playfair-display';
+import { Nunito_400Regular, Nunito_500Medium, Nunito_600Semibold } from '@expo-google-fonts/nunito';
+import AppLoading from 'expo-app-loading';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import * as ImagePicker from 'expo-image-picker';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { ScrollView } from 'react-native-gesture-handler';
 
+
+var regFont = 'Nunito_500Medium';
+var gradient = ['#ff4a86', '#fe9a55', '#fec759'];
+var locations = [0.2, 0.8, 1];
 
 
 
 export default function Questions(props) {
     const QuestionsStack = createStackNavigator();
     const navigation = useNavigation();
-    var questions = ["What are you most excited about in the coming weeks?",
-        "What's a unique mannerism of mine?",
-        "What's one time you stepped totally out of your comfort zone?",
-        "What was your worst date ever?",
-        "How do you handle stress?",
-        "Where do you want to live before you settle down?"];
 
-    contactsWithQuestions = [];
+    var contactsWithQuestions = [];
     for (var i = 0; i < 6; i += props.data.length / 6) {
-        props.data[i].question = questions[i]
         contactsWithQuestions.push(props.data[i]);
+    }
+
+    function imageRender(contact) {
+        if (contact.imageAvailable) {
+            return <View style={styles.image}>
+                <Image style={styles.image} source={contact.image} />
+                {contact.online ? <View style={{ height: 9, width: 9, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
+            </View>
+        }
+        else {
+            return <View style={styles.image}>
+                <Text style={styles.initials}>{contact.firstName ? contact.firstName[0] : ""}{contact.lastName ? contact.lastName[0] : ""}</Text>
+                {contact.online ? <View style={{ height: 9, width: 9, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
+            </View>;
+        }
     }
 
     function QuestionsDefault() {
         return (
-            <SafeAreaView>
-                <Text style={styles.questionsTitle}>New Questions</Text>
-                <ContactList
-                    data={contactsWithQuestions}
-                    contactStyle={styles.contact}
-                    onPressContact="ViewQuestion"
-                />
-            </SafeAreaView>
+            <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
+                <SafeAreaView >
+                    <View style={{ marginTop: 60 }}>
+                        <ContactList
+                            data={contactsWithQuestions}
+                            contactStyle={styles.contact}
+                            nameStyle={{ fontFamily: regFont, fontSize: 16, marginLeft: 30, color: 'white' }}
+                            onPressContact="ViewQuestion"
+                            showQuestion={true}
+                        />
+                    </View>
+                </SafeAreaView>
+            </LinearGradient>
         )
     }
 
     function ViewQuestion({ route }) {
         return (
-            <SafeAreaView>
-                <View style={styles.questionCard} >
-                    <View style={styles.questionCardTopBar}>
-                        <View style={styles.questionCardContactImage}>{route.params.imageRender}</View>
-                        <Text style={styles.questionCardContact}>{route.params.firstName}</Text>
+            <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
+                <SafeAreaView>
+                    <BlurView intensity={75} tint="light" style={[styles.question, { marginTop: 80, flexShrink: 1 }]}>
+                        <View style={styles.questionCardTopBar}>
+                            {imageRender(route.params)}
+                            <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} asked:</Text>
+                        </View>
+                        <Text style={styles.questionText}>{route.params.question}</Text>
+                    </BlurView>
+                    <Text style={{ marginLeft: '5%', fontSize: 18, fontFamily: regFont, color: 'white', marginTop: 30, }}>Respond with:</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', alignSelf: 'center', marginTop: 10, }}>
+                        <Pressable onPress={() => navigation.navigate("TextRespond", { firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online, question: route.params.question })}>
+                            {({ pressed }) => (
+                                <BlurView intensity={75} tint="light" style={[styles.respondButton, { backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
+                                    <Text style={{ fontSize: 35 }}>✏</Text>
+                                </BlurView>
+                            )}
+                        </Pressable>
+                        <Pressable onPress={() => navigation.navigate("DrawingRespond", { firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online, question: route.params.question })}>
+                            {({ pressed }) => (
+                                <BlurView intensity={75} tint="light" style={[styles.respondButton, { backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
+                                    <Text style={{ fontSize: 35 }}>🎨</Text>
+                                </BlurView>
+                            )}
+                        </Pressable>
+                        <Pressable onPress={() => navigation.navigate("PhotoRespond", { firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online, question: route.params.question })}>
+                            {({ pressed }) => (
+                                <BlurView intensity={75} tint="light" style={[styles.respondButton, { backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
+                                    <Text style={{ fontSize: 35 }}>🏙</Text>
+                                </BlurView>
+                            )}
+                        </Pressable>
+                        <Pressable onPress={() => navigation.navigate("AudioRespond", { firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online, question: route.params.question })}>
+                            {({ pressed }) => (
+                                <BlurView intensity={75} tint="light" style={[styles.respondButton, { backgroundColor: pressed ? 'transparent' : "rgba(255, 255, 255, 0.3)" }]}>
+                                    <Text style={{ fontSize: 35 }}>🎙</Text>
+                                </BlurView>
+                            )}
+                        </Pressable>
                     </View>
-                    <Text style={styles.questionText}>{props.data.find((name) => {
-                        return name.firstName === route.params.firstName;
-                    }).question}</Text>
-                </View>
-                <Text style={{ marginLeft: '5%', marginTop: 40, fontSize: 15, }}>Respond with:</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', alignSelf: 'center', marginTop: 20, }}>
-                    <Pressable style={styles.respondButton} onPress={() => navigation.navigate("TextRespond", { firstName: route.params.firstName, imageRender: route.params.imageRender })}>
-                        <Text style={{ fontSize: 35 }}>✏</Text>
-                    </Pressable>
-                    <Pressable style={styles.respondButton} onPress={() => navigation.navigate("DrawingRespond", { firstName: route.params.firstName, imageRender: route.params.imageRender })}>
-                        <Text style={{ fontSize: 35 }}>🎨</Text>
-                    </Pressable>
-                    <Pressable style={styles.respondButton}>
-                        <Text style={{ fontSize: 35 }}>🏙</Text>
-                    </Pressable>
-                    <Pressable style={styles.respondButton} onPress={() => navigation.navigate("TextRespond", { firstName: route.params.firstName, imageRender: route.params.imageRender })}>
-                        <Text style={{ fontSize: 35 }}>🎙</Text>
-                    </Pressable>
-                </View>
-            </SafeAreaView>
-        )
-    }
-
-    function handleSend() {
-        return (
-            <Pressable style={[styles.questionCard, { height: 50, marginTop: 20, }]} onPress={() => navigation.navigate("QuestionsDefault")}>
-                <Text style={[styles.questionText, { fontSize: 18 }]}>Send! →</Text>
-            </Pressable>
+                </SafeAreaView>
+            </LinearGradient>
         )
     }
 
     function TextRespond({ route }) {
         const [text, onChangeText] = React.useState("");
+        var textLength = text.length;
+        var [sendButton, setSendButton] = useState("Send →");
+        var [border, setBorder] = useState(true);
+        var [lowerButtons, setLowerButtons] = useState(<View></View>);
+
+        function renderSendButton(buttonText, border) {
+            if (buttonText === "Sent!") {
+                return (
+                    <View style={[styles.send, { borderWidth: border ? 1 : 0 }]}>
+                        <Text style={styles.sendText}>{buttonText}</Text>
+                    </View>
+                )
+            }
+            return (
+                <Pressable onPress={text.length > 0 ? () => { setSendButton("Send?"); setLowerButtons(renderConfirm); setBorder(false) } : () => { }}>
+                    <View style={[styles.send, { borderWidth: border ? 1 : 0, borderColor: text.length > 0 ? 'white' : 'rgba(255, 255, 255, 0.5)' }]}>
+                        <Text style={[styles.sendText, { color: text.length > 0 ? 'white' : 'rgba(255, 255, 255, 0.5)' }]}>{buttonText}</Text>
+                    </View>
+                </Pressable>
+            )
+        }
+        var renderConfirm = <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
+            <Pressable onPress={() => { setSendButton("Send →"); setLowerButtons(<View></View>); setBorder(true) }}>
+                <View style={[styles.send, { marginTop: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>NO</Text>
+                </View>
+            </Pressable>
+            <Pressable onPress={() => { setSendButton("Sent!"); setLowerButtons(renderSent) }}>
+                <View style={[styles.send, { marginTop: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>YES</Text>
+                </View>
+            </Pressable>
+        </View>;
+        var renderSent = <><Pressable onPress={() => navigation.navigate("QuestionsDefault", { data: props.data })}>
+            <View style={[styles.send, { marginTop: 20 }]}>
+                <Text style={styles.sendText}>Back to Questions</Text>
+            </View>
+        </Pressable></>;
+
         return (
-            <SafeAreaView>
-                <View style={[styles.questionCard, { height: 150 }]} >
-                    <View style={styles.questionCardTopBar}>
-                        <View style={styles.questionCardContactImage}>{route.params.imageRender}</View>
-                        <Text style={styles.questionCardContact}>{route.params.firstName} asked:</Text>
-                    </View>
-                    <View >
-                        <Text style={[styles.questionText, { fontSize: 16, lineHeight: 25, textAlign: 'left' }]}>{props.data.find((name) => {
-                            return name.firstName === route.params.firstName;
-                        }).question}</Text>
-                    </View>
-                </View>
-                <View style={[styles.questionCard, { height: 200, marginTop: 20, }]}>
-                    <TextInput
-                        value={text}
-                        onChangeText={onChangeText}
-                        placeholder="Your response:"
-                        style={[styles.questionText, { textAlign: 'left', fontSize: 18 }]}
-                        multiline={true} />
-                </View>
-                {handleSend()}
-            </SafeAreaView >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
+                    <SafeAreaView>
+                        <BlurView intensity={75} tint="light" style={[styles.question, { marginTop: 80, height: 150, justifyContent: 'flex-start' }]}>
+                            <View style={[styles.questionCardTopBar, { position: 'relative' }]}>
+                                {imageRender(route.params)}
+                                <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} asked:</Text>
+                            </View>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, width: '90%', alignSelf: 'center', }}>
+                                <Text style={[styles.questionText, { fontSize: 18, lineHeight: 28 }]}>{route.params.question}</Text>
+                            </View>
+                        </BlurView>
+                        <View>
+                            <BlurView intensity={75} tint="light" style={[styles.question, { height: 300, marginTop: 20, justifyContent: 'flex-start' }]}>
+                                <View style={[styles.questionCardTopBar, { position: 'relative' }]}>
+                                    <Image style={styles.image} source={require('../assets/monalisa.jpeg')} />
+                                    <Text style={{ fontFamily: regFont, fontSize: 16 }}>  Your response:</Text>
+                                </View>
+                                <View style={{ width: '85%', justifyContent: 'center', alignSelf: 'center', alignItems: 'center', height: '70%', marginTop: 20, }}>
+                                    <TextInput
+                                        value={text}
+                                        onChangeText={onChangeText}
+                                        placeholder="Type here"
+                                        style={{ fontSize: 18, fontFamily: regFont, width: '100%', height: '100%' }}
+                                        maxLength={300}
+                                        multiline={true} />
+                                </View>
+                                <Text style={{ alignSelf: 'flex-end', marginTop: 8, right: 15, fontFamily: regFont, fontSize: 14 }}>{textLength}/300</Text>
+                            </BlurView>
+                        </View>
+                        {renderSendButton(sendButton, border)}
+                        {lowerButtons}
+                    </SafeAreaView >
+                </LinearGradient>
+            </TouchableWithoutFeedback>
         )
     }
 
 
     function DrawingRespond({ route }) {
+        var [sendButton, setSendButton] = useState("Send →");
+        var [border, setBorder] = useState(true);
+        var [lowerButtons, setLowerButtons] = useState(<View></View>);
+
+        function renderSendButton(buttonText, border) {
+            if (buttonText === "Sent!") {
+                return (
+                    <View style={[styles.send, { borderWidth: border ? 1 : 0 }]}>
+                        <Text style={styles.sendText}>{buttonText}</Text>
+                    </View>
+                )
+            }
+            return (
+                <Pressable onPress={text.length > 0 ? () => { setSendButton("Send?"); setLowerButtons(renderConfirm); setBorder(false) } : () => { }}>
+                    <View style={[styles.send, { borderWidth: border ? 1 : 0, borderColor: text.length > 0 ? 'white' : 'rgba(255, 255, 255, 0.5)' }]}>
+                        <Text style={[styles.sendText, { color: text.length > 0 ? 'white' : 'rgba(255, 255, 255, 0.5)' }]}>{buttonText}</Text>
+                    </View>
+                </Pressable>
+            )
+        }
+        var renderConfirm = <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
+            <Pressable onPress={() => { setSendButton("Send →"); setLowerButtons(<View></View>); setBorder(true) }}>
+                <View style={[styles.send, { marginTop: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>NO</Text>
+                </View>
+            </Pressable>
+            <Pressable onPress={() => { setSendButton("Sent!"); setLowerButtons(renderSent) }}>
+                <View style={[styles.send, { marginTop: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>YES</Text>
+                </View>
+            </Pressable>
+        </View>;
+        var renderSent = <><Pressable onPress={() => navigation.navigate("QuestionsDefault", { data: props.data })}>
+            <View style={[styles.send, { marginTop: 20 }]}>
+                <Text style={styles.sendText}>Back to Questions</Text>
+            </View>
+        </Pressable></>;
+
         return (
-            <SafeAreaView>
-                <View style={[styles.questionCard, { height: 150 }]} >
-                    <View style={styles.questionCardTopBar}>
-                        <View style={styles.questionCardContactImage}>{route.params.imageRender}</View>
-                        <Text style={styles.questionCardContact}>{route.params.firstName} asked:</Text>
+            <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
+                <SafeAreaView>
+                    <BlurView intensity={75} tint="light" style={[styles.question, { marginTop: 80, height: 150, justifyContent: 'flex-start' }]}>
+                        <View style={[styles.questionCardTopBar, { position: 'relative' }]}>
+                            {imageRender(route.params)}
+                            <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} asked:</Text>
+                        </View>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, width: '90%', alignSelf: 'center', }}>
+                            <Text style={[styles.questionText, { fontSize: 18, lineHeight: 28 }]}>{route.params.question}</Text>
+                        </View>
+                    </BlurView>
+                    <View style={[styles.questionCard, { height: 350, marginTop: 20, }]}>
                     </View>
-                    <View >
-                        <Text style={[styles.questionText, { fontSize: 16, lineHeight: 25, textAlign: 'left' }]}>{props.data.find((name) => {
-                            return name.firstName === route.params.firstName;
-                        }).question}</Text>
+                </SafeAreaView >
+            </LinearGradient>
+        )
+    }
+
+    function PhotoRespond({ route }) {
+
+        const takePicture = async () => {
+            const [status, requestPermission] = ImagePicker.useCameraPermissions();
+            let result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
+            if (!result.cancelled) {
+                setImage(result.uri);
+            }
+        };
+
+        const [image, setImage] = useState(null);
+        const pickImage = async () => {
+            // No permissions request is necessary for launching the image library
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
+            if (!result.cancelled) {
+                setImage(result.uri);
+            }
+        };
+
+        var [sendButton, setSendButton] = useState("Send →");
+        var [border, setBorder] = useState(true);
+        var [lowerButtons, setLowerButtons] = useState(<View></View>);
+
+        function renderSendButton(buttonText, border) {
+            if (buttonText === "Sent!") {
+                return (
+                    <View style={[styles.send, { borderWidth: 0, marginBottom: border ? 30 : 0 }]}>
+                        <Text style={styles.sendText}>{buttonText}</Text>
                     </View>
+                )
+            }
+            return (
+                <Pressable onPress={() => { setSendButton("Send?"); setLowerButtons(renderConfirm); setBorder(false) }}>
+                    <View style={[styles.send, { borderWidth: border ? 1 : 0, marginBottom: border ? 20 : 0 }]}>
+                        <Text style={[styles.sendText]}>{buttonText}</Text>
+                    </View>
+                </Pressable>
+            )
+        }
+        var renderConfirm = <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
+            <Pressable onPress={() => { setSendButton("Send →"); setLowerButtons(<View></View>); setBorder(true) }}>
+                <View style={[styles.send, { marginTop: 20, marginBottom: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>NO</Text>
                 </View>
-                <View style={[styles.questionCard, { height: 350, marginTop: 20, }]}>
+            </Pressable>
+            <Pressable onPress={() => { setSendButton("Sent!"); setLowerButtons(renderSent) }}>
+                <View style={[styles.send, { marginTop: 20, marginBottom: 20, marginRight: 0, width: 120 }]}>
+                    <Text style={styles.sendText}>YES</Text>
                 </View>
-                {handleSend()}
-            </SafeAreaView >
+            </Pressable>
+        </View>;
+        var renderSent = <><Pressable onPress={() => navigation.navigate("QuestionsDefault", { data: props.data })}>
+            <View style={[styles.send, { marginTop: 20, marginBottom: 20 }]}>
+                <Text style={styles.sendText}>Back to Questions</Text>
+            </View>
+        </Pressable></>;
+
+        return (
+            <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
+                <SafeAreaView>
+                    <ScrollView>
+                        <BlurView intensity={75} tint="light" style={[styles.question, { marginTop: 80, height: 150, justifyContent: 'flex-start' }]}>
+                            <View style={[styles.questionCardTopBar, { position: 'relative' }]}>
+                                {imageRender(route.params)}
+                                <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} asked:</Text>
+                            </View>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, width: '90%', alignSelf: 'center', }}>
+                                <Text style={[styles.questionText, { fontSize: 18, lineHeight: 28 }]}>{route.params.question}</Text>
+                            </View>
+                        </BlurView>
+                        {image ? <>
+                            <Image source={{ uri: image }} style={[styles.questionCard, { width: '90%', borderWidth: 1, borderColor: 'white', marginTop: 20 }]} />
+                            {renderSendButton(sendButton, border)}
+                            {lowerButtons}
+                        </>
+                            : <View style={{ alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                                <BlurView intensity={75} tint="light" style={[styles.question, { width: 165, height: 80, marginTop: 20 }]}>
+                                    <Pressable onPress={takePicture} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Icon name='camera' size={30} />
+                                        <Text style={{ fontFamily: regFont, fontSize: 18 }}> Camera</Text>
+                                    </Pressable>
+                                </BlurView>
+                                <BlurView intensity={75} tint="light" style={[styles.question, { width: 165, height: 80, marginTop: 20 }]}>
+                                    <Pressable onPress={pickImage} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Icon name='upload' size={30} />
+                                        <Text style={{ fontFamily: regFont, fontSize: 18 }}> Photo Album</Text>
+                                    </Pressable>
+                                </BlurView>
+                            </View>}
+                    </ScrollView>
+                </SafeAreaView >
+            </LinearGradient>
+        )
+    }
+
+    function AudioRespond({ route }) {
+
+        return (
+            <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
+                <SafeAreaView>
+                    <BlurView intensity={75} tint="light" style={[styles.question, { marginTop: 80, height: 150, justifyContent: 'flex-start' }]}>
+                        <View style={[styles.questionCardTopBar, { position: 'relative' }]}>
+                            {imageRender(route.params)}
+                            <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} asked:</Text>
+                        </View>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, width: '90%', alignSelf: 'center', }}>
+                            <Text style={[styles.questionText, { fontSize: 18, lineHeight: 28 }]}>{route.params.question}</Text>
+                        </View>
+                    </BlurView>
+                    <BlurView intensity={75} tint="light" style={{ backgroundColor: 'rgba(255, 255, 255, 0.35)', marginTop: 200, height: 90, width: 90, borderRadius: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                        <Icon name='microphone' size={40} />
+                    </BlurView>
+                </SafeAreaView >
+            </LinearGradient>
         )
     }
 
@@ -134,14 +382,22 @@ export default function Questions(props) {
         <QuestionsStack.Navigator screenOptions={{
             headerBackTitle: " ",
             headerTitle: " ",
+            headerTransparent: true,
+            headerTintColor: 'white',
             headerStyle: {
-                backgroundColor: 'transparent',
+                backgroundColor: 'white',
             },
+            cardStyle: {
+                backgroundColor: 'white'
+            },
+            animationEnabled: false,
         }}>
-            <QuestionsStack.Screen options={{}} name="QuestionsDefault" component={QuestionsDefault} />
+            <QuestionsStack.Screen options={{ headerTitle: "Respond to Questions", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="QuestionsDefault" component={QuestionsDefault} />
             <QuestionsStack.Screen options={{}} name="ViewQuestion" component={ViewQuestion} />
             <QuestionsStack.Screen options={{}} name="TextRespond" component={TextRespond} />
             <QuestionsStack.Screen options={{}} name="DrawingRespond" component={DrawingRespond} />
+            <QuestionsStack.Screen options={{}} name="PhotoRespond" component={PhotoRespond} />
+            <QuestionsStack.Screen options={{}} name="AudioRespond" component={AudioRespond} />
         </QuestionsStack.Navigator>
     );
 }
@@ -155,6 +411,7 @@ const styles = StyleSheet.create({
         marginRight: 30,
         paddingBottom: 16,
         borderBottomWidth: 1,
+        borderColor: 'white'
     },
     questionsTitle: {
         fontFamily: 'Helvetica Neue',
@@ -177,6 +434,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         position: 'absolute',
         top: 10,
+        left: 10,
         alignSelf: 'stretch',
     },
     questionCardContactImage: {
@@ -188,7 +446,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     questionText: {
-        fontFamily: 'Helvetica Neue',
+        fontFamily: regFont,
         fontSize: 25,
         textAlign: 'center',
         width: '80%',
@@ -201,5 +459,55 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'white'
+    },
+    question: {
+        height: 400,
+        width: '90%',
+        alignSelf: 'center',
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'white',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        backgroundColor: 'rgba(255, 255, 255, 0.55)',
+        marginTop: 60,
+    },
+    questionText: {
+        fontFamily: regFont,
+        fontSize: 25,
+        lineHeight: 40,
+        textAlign: 'center',
+        width: '80%',
+    },
+    image: {
+        height: 30,
+        width: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'lightgray',
+        borderRadius: 100,
+        borderWidth: 1,
+        borderColor: 'white'
+    },
+    send: {
+        height: 45,
+        width: '70%',
+        alignSelf: 'center',
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        borderColor: 'white',
+        borderWidth: 1,
+        marginTop: 20,
+    },
+    sendText: {
+        fontFamily: regFont,
+        fontSize: 18,
+        color: 'white',
     },
 });

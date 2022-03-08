@@ -26,24 +26,30 @@ export default function ContactList(props) {
 
         var onPressContact = () => navigation.navigate("Categories", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online });
         if (props.onPressContact === "ViewQuestion") {
-            onPressContact = () => navigation.navigate("ViewQuestion", { firstName: props.firstName, imageRender: imageRender });
+            onPressContact = () => navigation.navigate("ViewQuestion", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, question: props.question });
         }
 
         return (
             <Pressable style={props.contactStyle} onPress={onPressContact}>
                 {imageRender}
-                <Text style={styles.name}>{props.firstName} </Text>
-                <Text style={[styles.name, { marginLeft: 0 }]}>{props.lastName}</Text>
+                <View style={{ flexDirection: 'column', width: 280 }}>
+                    <Text style={[props.nameStyle, { fontFamily: 'Nunito_700Bold' }]}>{props.firstName} {props.lastName}</Text>
+                    {props.showQuestion === true ? <Text style={[props.nameStyle, { color: 'rgba(255, 255, 255, 0.65)' }]} numberOfLines={1}>{props.question}</Text> : <View></View>}
+                </View>
             </Pressable>
         );
     }
 
     function renderContacts({ item, index }) {
-        console.log(item);
         var contactStyle = styles.contact;
         if (props.contactStyle !== undefined) {
             contactStyle = props.contactStyle;
         }
+        var nameStyle = styles.name;
+        if (props.contactStyle !== undefined) {
+            nameStyle = props.nameStyle;
+        }
+
         return <ContactItem
             firstName={item.firstName}
             lastName={item.lastName}
@@ -51,7 +57,10 @@ export default function ContactList(props) {
             image={item.image}
             online={item.online}
             contactStyle={contactStyle}
+            nameStyle={nameStyle}
             onPressContact={props.onPressContact}
+            question={item.question}
+            showQuestion={props.showQuestion}
             id={props.id}
         />;
     };

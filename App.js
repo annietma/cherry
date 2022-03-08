@@ -10,18 +10,13 @@ import Questions from './components/QuestionsScreen';
 import * as Contacts from 'expo-contacts';
 import AppLoading from 'expo-app-loading';
 import { useFonts, PlayfairDisplay_800ExtraBold_Italic, } from '@expo-google-fonts/playfair-display';
-import { Nunito_400Regular, Nunito_500Medium } from '@expo-google-fonts/nunito';
+import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
-var regFont = 'Nunito_500Medium';
-
-var gradient = ['#ff4a86', '#fe9a55', '#fec759'];
-var locations = [0.2, 0.8, 1];
 
 export default function App() {
 
@@ -54,7 +49,7 @@ export default function App() {
     )
   }
   let [fontsLoaded] = useFonts({
-    PlayfairDisplay_800ExtraBold_Italic, Nunito_400Regular, Nunito_500Medium
+    PlayfairDisplay_800ExtraBold_Italic, Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold
   });
   if (!ContactsData || !fontsLoaded) {
     return <AppLoading />;
@@ -67,6 +62,16 @@ export default function App() {
         ContactsData[i].online = false;
       }
     }
+    var questions = ["What are you most excited about in the coming weeks?",
+      "What's a unique mannerism of mine?",
+      "What's one time you stepped totally out of your comfort zone?",
+      "What was your worst date ever?",
+      "How do you handle stress?",
+      "Where do you want to live before you settle down?"];
+
+    for (var i = 0; i < 6; i += ContactsData.length / 6) {
+      ContactsData[i].question = questions[i];
+    }
     return (
       <NavigationContainer>
         <Tab.Navigator screenOptions={{
@@ -75,6 +80,7 @@ export default function App() {
           tabBarActiveTintColor: '#ff4a86',
           tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.7)',
           tabBarShowLabel: false,
+
         }}
           tabBar={(props) => <LinearGradient colors={['#FD9955', '#FEC759']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} >
             <View style={{ borderColor: 'white', borderBottomWidth: 1, marginBottom: 10, }}></View>
@@ -86,7 +92,7 @@ export default function App() {
           }} children={() => <Home data={ContactsData} />} />
           <Tab.Screen name="Questions" options={{
             tabBarStyle: { backgroundColor: "rgba(255, 255, 255, 0)", borderTopColor: 'transparent' },
-            tabBarBadge: 2,
+            tabBarBadge: 6,
             tabBarIcon: ({ color }) => (<Icon name='pencil-box-multiple' color={color} size={35} />)
           }} children={() => <Questions data={ContactsData} />} />
           <Tab.Screen name="Open" options={{
