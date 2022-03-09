@@ -59,7 +59,6 @@ export default function Home(props) {
             )
         }
 
-
         return (
             <View style={{ backgroundColor: 'red', height: '100%' }}>
                 <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations}>
@@ -147,7 +146,6 @@ export default function Home(props) {
                         )}
                     </Pressable>
                     <FlatList data={categories} renderItem={renderCategories} keyExtractor={(item) => item.name} />
-
                 </SafeAreaView>
             </LinearGradient>
         )

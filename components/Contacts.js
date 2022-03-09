@@ -31,6 +31,9 @@ export default function ContactList(props) {
         if (props.onPressContact === "ViewResponse") {
             onPressContact = () => navigation.navigate("ViewResponse", { phone: props.phone, firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, response: props.response });
         }
+        if (props.onPressContact === "ConfirmRequest") {
+            onPressContact = () => navigation.navigate("ConfirmRequest", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online });
+        }
 
         if (props.response) {
             var response = props.response.response;
@@ -65,7 +68,7 @@ export default function ContactList(props) {
             contactStyle = props.contactStyle;
         }
         var nameStyle = styles.name;
-        if (props.contactStyle !== undefined) {
+        if (props.nameStyle !== undefined) {
             nameStyle = props.nameStyle;
         }
 

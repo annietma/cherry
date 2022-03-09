@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, Alert, TextInput, Keyboard, TouchableWithoutFeedback, StatusBar } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -14,10 +14,7 @@ var locations = [0.2, 0.8, 1];
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as SMS from 'expo-sms';
 import ViewShot from "react-native-view-shot";
-
-
-
-
+import * as Progress from 'react-native-progress';
 
 export default function Responses(props) {
     const ResponsesStack = createStackNavigator();
@@ -73,14 +70,40 @@ export default function Responses(props) {
         }
         if (route.params.response.responseType === 'audio') {
             responseHeight = 150;
-            response = <View style={{ flexDirection: 'row', marginTop: 60 }}>
-                <Icon name='play' size={40}></Icon>
-
+            var [progress, setProgress] = useState(0);
+            var timer = useRef(null);
+            var [paused, setPaused] = useState(false);
+            var [playIcon, setPlayIcon] = useState(<Icon name='play' size={40}></Icon>)
+            useEffect(() => {
+                if (progress >= 1) {
+                    setPaused(true);
+                    setPlayIcon(<Icon name='play' size={40}></Icon>);
+                    clearTimeout(timer.current);
+                    setProgress(0);
+                }
+            }, [progress]);
+            function listen() {
+                function fillUp() {
+                    setProgress((prev) => prev + 0.01);
+                    timer.current = setTimeout(fillUp, 100);
+                }
+                if (paused) {
+                    setPaused(false);
+                    setPlayIcon(<Icon name='pause' size={40}></Icon>);
+                    fillUp();
+                } else {
+                    setPaused(true);
+                    setPlayIcon(<Icon name='play' size={40}></Icon>);
+                    clearTimeout(timer.current);
+                }
+            }
+            response = <View style={{ flexDirection: 'row', marginTop: 60, alignItems: 'center' }}>
+                <Pressable onPress={listen}>
+                    {playIcon}
+                </Pressable>
+                <Progress.Bar progress={progress} style={{ marginLeft: 15 }} height={6} width={200} color={'black'}></Progress.Bar>
             </View>
         }
-
-
-
 
         var screenshot = React.useRef();
         var shareResponse = async () => {
@@ -107,7 +130,7 @@ export default function Responses(props) {
                     );
             } else {
                 Alert.alert(
-                    "Not available on IOS Simulator",
+                    "Not available on iOS Simulator",
                     "Please view the demo using Expo Go on your iPhone to use the Reply with SMS feature.",
                     [{ text: "OK" }]
                 );

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { TabRouter, CancelButton } from 'react-navigation';
-import { Animated, Circle, StyleSheet, Text, View, TouchableOpacity, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Button, StatusBar } from 'react-native';
+import { Animated, Circle, StyleSheet, Text, View, TouchableOpacity, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Button, StatusBar, ListViewComponent } from 'react-native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -16,6 +16,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ScrollView } from 'react-native-gesture-handler';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import * as Progress from 'react-native-progress';
 
 var regFont = 'Nunito_500Medium';
 var gradient = ['#ff4a86', '#fe9a55', '#fec759'];
@@ -375,13 +376,16 @@ export default function Questions(props) {
                 clearTimeout(timer.current);
             }
         }, [fill]);
-
         function onPressInMic() {
             function fillUp() {
                 setFill((prevValue) => prevValue + 1);
                 timer.current = setTimeout(fillUp, 100);
             }
             setPaused(false);
+            setPausedListen(true);
+            setProgress(0);
+            clearTimeout(timerListen.current);
+            setPlayIcon(<Icon name='play' color={'white'} size={40}></Icon>);
             setRecordIcon(<Icon name='microphone-outline' color='#ff4a86' size={40} />);
             fillUp();
             Animated.spring(animation, {
@@ -389,7 +393,6 @@ export default function Questions(props) {
                 useNativeDriver: true,
             }).start();
         };
-
         const onPressOutMic = () => {
             Animated.spring(animation, {
                 toValue: 0,
@@ -400,10 +403,37 @@ export default function Questions(props) {
             setRecordIcon(<Icon name='microphone' size={40} />);
         };
 
+        var [progress, setProgress] = useState(0);
+        var timerListen = useRef(null);
+        var [pausedListen, setPausedListen] = useState(false);
+        var [playIcon, setPlayIcon] = useState(<Icon name='play' color={'white'} size={40}></Icon>)
+        useEffect(() => {
+            if (progress >= 1) {
+                setPausedListen(true);
+                setPlayIcon(<Icon name='play' color={'white'} size={40}></Icon>);
+                clearTimeout(timerListen.current);
+                setProgress(0);
+            }
+        }, [progress]);
+        function listen() {
+            function fillUp() {
+                setProgress((prev) => prev + 0.01);
+                timerListen.current = setTimeout(fillUp, fill / 100);
+            }
+            if (pausedListen) {
+                setPausedListen(false);
+                setPlayIcon(<Icon name='pause' color={'white'} size={40}></Icon>);
+                fillUp();
+            } else {
+                setPausedListen(true);
+                setPlayIcon(<Icon name='play' color={'white'} size={40}></Icon>);
+                clearTimeout(timerListen.current);
+            }
+        }
+
         var [sendButton, setSendButton] = useState("Send →");
         var [border, setBorder] = useState(true);
         var [lowerButtons, setLowerButtons] = useState(<View></View>);
-
         function renderSendButton(buttonText, border) {
             if (buttonText === "Sent!") {
                 return (
@@ -423,7 +453,7 @@ export default function Questions(props) {
             }
             return (
                 <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
-                    <Pressable onPress={() => { setFill(0); setPaused(false); setMemoDone(false) }}>
+                    <Pressable onPress={() => { setFill(0); setProgress(0); setPausedListen(true); setPaused(false); setMemoDone(false) }}>
                         <View style={[styles.send, { marginTop: 20, marginBottom: 20, marginRight: 0, width: 120 }]}>
                             <Text style={styles.sendText}>Re-record</Text>
                         </View>
@@ -487,6 +517,12 @@ export default function Questions(props) {
                     </View>
                     {paused === true && memoDone === false && <Text style={{ marginTop: 30, alignSelf: 'center', fontFamily: regFont, color: 'white' }}>Press mic to keep recording</Text>}
                     {memoDone === true && <Text style={{ marginTop: 30, alignSelf: 'center', fontFamily: regFont, color: 'white' }}>Time limit met</Text>}
+                    {paused === true && <View style={{ flexDirection: 'row', marginTop: 30, alignItems: 'center', alignSelf: 'center' }}>
+                        <Pressable onPress={listen}>
+                            {playIcon}
+                        </Pressable>
+                        <Progress.Bar progress={progress} style={{ marginLeft: 15 }} height={6} width={200} color={'white'}></Progress.Bar>
+                    </View>}
                     {(paused === true || memoDone === true) && renderSendButton(sendButton, border)}
                     {(paused === true || memoDone === true) && lowerButtons}
                 </SafeAreaView >
