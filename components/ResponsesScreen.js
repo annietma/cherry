@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, Alert, TextInput, Keyboard, TouchableWithoutFeedback, StatusBar } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import ContactList from './Contacts';
@@ -13,6 +13,8 @@ var gradient = ['#ff4a86', '#fe9a55', '#fec759'];
 var locations = [0.2, 0.8, 1];
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as SMS from 'expo-sms';
+import ViewShot from "react-native-view-shot";
+
 
 
 
@@ -71,46 +73,77 @@ export default function Responses(props) {
         }
         if (route.params.response.responseType === 'audio') {
             responseHeight = 150;
+            response = <View style={{ flexDirection: 'row', marginTop: 60 }}>
+                <Icon name='play' size={40}></Icon>
+
+            </View>
         }
 
-        shareResponse = async () => {
-            const isAvailable = SMS.isAvailableAsync();
+
+
+
+        var screenshot = React.useRef();
+        var shareResponse = async () => {
+            const isAvailable = await SMS.isAvailableAsync();
             if (isAvailable) {
-                const { result } = await SMS.sendSMSAsync(
-                    [route.params.phone],
-                    'My sample HelloWorld message'
-                );
+                screenshot.current.capture().then((uri) => {
+                    console.log(uri);
+                    const { result } = SMS.sendSMSAsync(
+                        [route.params.phone],
+                        '',
+                        {
+                            attachments: {
+                                uri: 'file://' + uri,
+                                mimeType: 'image/png',
+                                filename: uri.substring(uri.lastIndexOf('/') + 1),
+                            }
+                        }
+                    );
+                }),
+                    (error) => Alert.alert(
+                        "Reply with SMS failed",
+                        "Please try again",
+                        [{ text: "OK" }]
+                    );
             } else {
-                console.log('rip');
+                Alert.alert(
+                    "Not available on IOS Simulator",
+                    "Please view the demo using Expo Go on your iPhone to use the Reply with SMS feature.",
+                    [{ text: "OK" }]
+                );
             }
-
         }
+
+
         return (
-            <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
-                <SafeAreaView>
-                    <BlurView intensity={75} tint="light" style={[styles.question, { marginTop: 80, height: 150, justifyContent: 'flex-start' }]}>
-                        <View style={[styles.questionCardTopBar, { position: 'relative' }]}>
-                            <Image style={styles.image} source={require('../assets/monalisa.jpeg')} />
-                            <Text style={{ fontFamily: regFont, fontSize: 16 }}>  You asked:</Text>
-                        </View>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, width: '90%', alignSelf: 'center', }}>
-                            <Text style={[styles.questionText, { fontSize: 18, lineHeight: 28 }]}>{route.params.response.answered}</Text>
-                        </View>
-                    </BlurView>
-                    <BlurView intensity={75} tint="light" style={[styles.question, { justifyContent: 'flex-start', marginTop: 20, height: responseHeight }]}>
-                        <View style={styles.questionCardTopBar}>
-                            {imageRender(route.params)}
-                            <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} responded:</Text>
-                        </View>
-                        {response}
-                    </BlurView>
-                    <Pressable onPress={shareResponse}>
-                        <BlurView intensity={75} tint="light" style={{ marginTop: 20, height: 50, width: 80, borderRadius: 20, borderWidth: 1, borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.35)', overflow: 'hidden', alignSelf: 'flex-end', marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
-                            <Icon name='share' size={30} />
+            <ViewShot ref={screenshot} options={{ format: "jpg", quality: 0.9 }}>
+                <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations} style={{ height: '100%' }}>
+                    <SafeAreaView>
+
+                        <BlurView intensity={75} tint="light" style={[styles.question, { marginTop: 80, height: 150, justifyContent: 'flex-start' }]}>
+                            <View style={[styles.questionCardTopBar, { position: 'relative' }]}>
+                                <Image style={styles.image} source={require('../assets/monalisa.jpeg')} />
+                                <Text style={{ fontFamily: regFont, fontSize: 16 }}>  You asked:</Text>
+                            </View>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, width: '90%', alignSelf: 'center', }}>
+                                <Text style={[styles.questionText, { fontSize: 18, lineHeight: 28 }]}>{route.params.response.answered}</Text>
+                            </View>
                         </BlurView>
-                    </Pressable>
-                </SafeAreaView>
-            </LinearGradient>
+                        <BlurView intensity={75} tint="light" style={[styles.question, { justifyContent: 'flex-start', marginTop: 20, height: responseHeight }]}>
+                            <View style={styles.questionCardTopBar}>
+                                {imageRender(route.params)}
+                                <Text style={{ fontFamily: regFont, fontSize: 16 }}>  {route.params.firstName} responded:</Text>
+                            </View>
+                            {response}
+                        </BlurView>
+                        <Pressable onPress={shareResponse}>
+                            <BlurView intensity={75} tint="light" style={{ marginTop: 20, height: 50, width: 80, borderRadius: 20, borderWidth: 1, borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.35)', overflow: 'hidden', alignSelf: 'flex-end', marginRight: 20, justifyContent: 'center', alignItems: 'center' }}>
+                                <Icon name='share' size={30} />
+                            </BlurView>
+                        </Pressable>
+                    </SafeAreaView>
+                </LinearGradient>
+            </ViewShot>
         )
     }
 
