@@ -1,38 +1,38 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
-import { TabRouter } from 'react-navigation';
 import { StyleSheet, Text, View, FlatList, Image, Pressable, ImageEditor } from 'react-native';
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import * as Contacts from 'expo-contacts';
-var regFont = 'Nunito_500Medium';
+import { regFont, RegBackground } from './Styles';
 
+export function imageRender(contact, size = 30, you) {
+    var source = require('../assets/monalisa.jpeg');
+    if (contact.imageAvailable || you) {
+        if (!you) source = contact.image;
+        return <View>
+            <Image style={[styles.image, { height: size, width: size }]} source={source} />
+            {contact.online ? <View style={{ height: size * 0.25, width: size * 0.25, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
+        </View>
+    }
+    else {
+        return <View style={[styles.image, { height: size, width: size }]}>
+            <Text style={{ fontFamily: regFont, fontSize: size * 0.3 }}>{contact.firstName ? contact.firstName[0] : ""}{contact.lastName ? contact.lastName[0] : ""}</Text>
+            {contact.online ? <View style={{ height: size * 0.25, width: size * 0.25, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
+        </View>;
+    }
+}
 
-export default function ContactList(props) {
+export function ContactList(props) {
     const navigation = useNavigation();
 
     function ContactItem(props) {
-        var imageRender = <View style={styles.image}>
-            <Text style={styles.initials}>{props.firstName ? props.firstName[0] : ""}{props.lastName ? props.lastName[0] : ""}</Text>
-            {props.online ? <View style={{ height: 12, width: 12, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
-        </View>;
-        if (props.imageAvailable) {
-            imageRender = <View style={styles.image} >
-                <Image style={styles.image} source={props.image} />
-                {props.online ? <View style={{ height: 12, width: 12, borderRadius: 12, backgroundColor: 'limegreen', position: 'absolute', right: 0, bottom: 0 }}></View> : <View></View>}
-            </View>
-        }
 
-        var onPressContact = () => navigation.navigate("Categories", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online });
+        var onPressContact = () => navigation.navigate("Categories", props);
         if (props.onPressContact === "ViewQuestion") {
-            onPressContact = () => navigation.navigate("ViewQuestion", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, question: props.question });
+            onPressContact = () => navigation.navigate("ViewQuestion", props);
         }
         if (props.onPressContact === "ViewResponse") {
-            onPressContact = () => navigation.navigate("ViewResponse", { phone: props.phone, firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online, response: props.response });
+            onPressContact = () => navigation.navigate("ViewResponse", props);
         }
         if (props.onPressContact === "ConfirmRequest") {
-            onPressContact = () => navigation.navigate("ConfirmRequest", { firstName: props.firstName, lastName: props.lastName, imageAvailable: props.imageAvailable, image: props.image, online: props.online });
+            onPressContact = () => navigation.navigate("ConfirmRequest", props);
         }
 
         if (props.response) {
@@ -48,10 +48,9 @@ export default function ContactList(props) {
             }
         }
 
-
         return (
             <Pressable style={props.contactStyle} onPress={onPressContact}>
-                {imageRender}
+                {imageRender(props, 50)}
                 <View style={{ flexDirection: 'column', width: 280 }}>
                     <Text style={[props.nameStyle, { fontFamily: 'Nunito_700Bold' }]}>{props.firstName} {props.lastName}</Text>
                     {props.showQuestion === true && <Text style={[props.nameStyle, { color: 'rgba(255, 255, 255, 0.65)' }]} numberOfLines={1}>{props.question}</Text>}
@@ -95,7 +94,6 @@ export default function ContactList(props) {
     );
 }
 
-
 const styles = StyleSheet.create({
     container: {
         marginLeft: 30,
@@ -112,17 +110,11 @@ const styles = StyleSheet.create({
         marginLeft: 30,
     },
     image: {
-        height: 50,
-        width: 50,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'lightgray',
         borderRadius: 100,
         borderWidth: 1,
         borderColor: 'white',
-    },
-    initials: {
-        fontFamily: regFont,
-        fontSize: 16,
     },
 });

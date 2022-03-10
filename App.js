@@ -1,21 +1,18 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, useRef } from 'react';
-import { TabRouter } from 'react-navigation';
 import { StyleSheet, Text, View, Pressable, SafeAreaView } from 'react-native';
 import { BottomTabBar, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigationState, useNavigation } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import Home from './components/HomeScreen';
-import Questions from './components/QuestionsScreen';
-import Responses from './components/ResponsesScreen';
-import RapidFire from './components/RapidFireScreen';
 import * as Contacts from 'expo-contacts';
 import AppLoading from 'expo-app-loading';
 import { useFonts, PlayfairDisplay_800ExtraBold_Italic, } from '@expo-google-fonts/playfair-display';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import * as Progress from 'react-native-progress';
+
+import Home from './components/TabHome';
+import Questions from './components/TabQuestions';
+import Responses from './components/TabResponses';
+import RapidFire from './components/TabRapidFire';
 
 var questions = ["What are you most excited about in the coming weeks?",
   "What's a unique mannerism of mine?",
@@ -23,7 +20,6 @@ var questions = ["What are you most excited about in the coming weeks?",
   "What was your worst date ever?",
   "How do you handle stress?",
   "Where do you want to live before you settle down?"];
-
 var responses = [{ answered: "What are you currently trying to improve about yourself?", responseType: 'text', response: "I'm trying to be less negative about things that mess up my day or my mood. " },
 { answered: "What's a place that means a lot to you?", responseType: 'image', response: require('./assets/legoland.jpg'), },
 { answered: "What does your mood look like right now?", responseType: 'drawing', response: require('./assets/mood.jpeg'), },
@@ -109,7 +105,7 @@ export default function App() {
               var history = e.data.state.routes[e.data.state.routes.length - 1].state;
               if (history != undefined) {
                 var name = history.routes[history.routes.length - 1].key;
-                if (name.includes("RFCategories")) {
+                if (name.includes("RF") && !name.includes("End")) {
                   setShowTabBar(false);
                 } else {
                   setShowTabBar(true);
@@ -163,12 +159,3 @@ export default function App() {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
