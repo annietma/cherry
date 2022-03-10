@@ -21,7 +21,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ios32"
+      "bundleIdentifier": "ios32",
+      "infoPlist": {
+        "NSContactsUsageDescription": "This app uses contacts to find users using Cherry and connect to them."
+      }
     },
     "android": {
       "adaptiveIcon": {

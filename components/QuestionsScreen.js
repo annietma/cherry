@@ -6,7 +6,6 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Contacts from 'expo-contacts';
 import ContactList from './Contacts';
-import Sketch from 'react-native-sketch';
 import { useFonts, PlayfairDisplay_800ExtraBold_Italic, } from '@expo-google-fonts/playfair-display';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600Semibold } from '@expo-google-fonts/nunito';
 import AppLoading from 'expo-app-loading';
