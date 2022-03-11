@@ -7,5 +7,4 @@ To start the app simply run this chain of commands (you need npm previously inst
 ### Limitations
 1. Communication with other users is faked
 2. Audio Response: No voice recording functionality (expo limitation)
-3. Picture Response: No camera in-app functionality, but can upload photos from camera roll
-4. Question Bank is hardcoded and limited in size.
+3. Question Bank is hardcoded and limited in size.
