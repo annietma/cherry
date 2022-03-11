@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Animated, Circle, StyleSheet, Text, View, TouchableOpacity, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, Button, StatusBar, ListViewComponent } from 'react-native';
+import { Animated, Circle, StyleSheet, Text, View, TouchableOpacity, FlatList, Image, Pressable, SafeAreaView, TextInput, Button, StatusBar, ListViewComponent } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { BlurView } from 'expo-blur';
@@ -29,25 +29,34 @@ export default function Questions(props) {
     const QuestionsStack = createStackNavigator();
     const navigation = useNavigation();
 
-    var contactsWithQuestions = [];
-    var j = 0;
-    for (var i = 0; i < 6; i++) {
-        contactsWithQuestions.push(props.data[j]);
-        j += Math.floor(props.data.length / 6);
+    function afterSent(firstName) {
+        contactsWithQuestions.splice(contactsWithQuestions.findIndex((contact) => {
+            return contact.firstName === firstName;
+        }), 1);
+        navigation.navigate("QuestionsDefault");
     }
 
     function QuestionsDefault() {
-        return (
+        var [reload, setReload] = useState(false);
+        if (contactsWithQuestions.length === 0) {
+            return (
+                <RegBackground>
+                    <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                        <BlurPressable text={'Reload Questions'} style={{ width: 200 }} onPress={() => { contactsWithQuestions = [...contactsWithQuestionsMaster]; setReload(true); }} />
+                    </View>
+                </RegBackground>
+            )
+        }
+        else return (
             <RegBackground>
-                <View style={{ marginTop: 60 }}>
-                    <ContactList
-                        data={contactsWithQuestions}
-                        contactStyle={styles.contact}
-                        nameStyle={{ fontFamily: regFont, fontSize: 16, marginLeft: 30, color: 'white' }}
-                        onPressContact="ViewQuestion"
-                        showQuestion={true}
-                    />
-                </View>
+                <View style={{ marginTop: 60 }}></View>
+                <ContactList
+                    data={contactsWithQuestions}
+                    contactStyle={styles.contact}
+                    nameStyle={{ fontFamily: regFont, fontSize: 16, marginLeft: 30, color: 'white' }}
+                    onPressContact="ViewQuestion"
+                    showQuestion={true}
+                />
             </RegBackground>
         )
     }
@@ -59,13 +68,13 @@ export default function Questions(props) {
                 <Text style={{ marginLeft: '5%', fontSize: 18, fontFamily: regFont, color: 'white', marginTop: 30, }}>Respond with:</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', alignSelf: 'center', marginTop: 10, }}>
                     <BlurPressable text={'✏'} textStyle={{ fontSize: 35 }} style={{ height: 75, width: 75 }}
-                        onPress={() => navigation.navigate("TextRespond", { firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online, question: route.params.question })} />
+                        onPress={() => navigation.navigate("TextRespond", route.params)} />
                     <BlurPressable text={'🎨'} textStyle={{ fontSize: 35 }} style={{ height: 75, width: 75 }}
-                        onPress={() => navigation.navigate("DrawingRespond", { firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online, question: route.params.question })} />
+                        onPress={() => navigation.navigate("DrawingRespond", route.params)} />
                     <BlurPressable text={'🏙'} textStyle={{ fontSize: 35 }} style={{ height: 75, width: 75 }}
-                        onPress={() => navigation.navigate("PhotoRespond", { firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online, question: route.params.question })} />
+                        onPress={() => navigation.navigate("PhotoRespond", route.params)} />
                     <BlurPressable text={'🎙'} textStyle={{ fontSize: 35 }} style={{ height: 75, width: 75 }}
-                        onPress={() => navigation.navigate("AudioRespond", { firstName: route.params.firstName, lastName: route.params.lastName, imageAvailable: route.params.imageAvailable, image: route.params.image, online: route.params.online, question: route.params.question })} />
+                        onPress={() => navigation.navigate("AudioRespond", route.params)} />
                 </View>
             </RegBackground>
         )
@@ -75,30 +84,30 @@ export default function Questions(props) {
         const [text, onChangeText] = React.useState("");
         var textLength = text.length;
         return (
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <RegBackground>
-                    {askedCard(route.params)}
-                    <RegBlurView style={{ height: 300, marginTop: 20 }}>
-                        <View style={styles.questionCardTopBar}>
-                            {imageRender(route.params, 30, true)}
-                            <Text style={{ fontFamily: regFont, fontSize: 16 }}>  Your response:</Text>
-                        </View>
-                        <View style={{ width: '85%', justifyContent: 'center', alignSelf: 'center', alignItems: 'center', height: '70%', marginTop: 40, }}>
-                            <TextInput
-                                value={text}
-                                onChangeText={onChangeText}
-                                placeholder="Type here"
-                                style={{ fontSize: 18, fontFamily: regFont, width: '100%', height: '100%' }}
-                                maxLength={300}
-                                multiline={true} />
-                        </View>
-                        <Text style={{ alignSelf: 'flex-end', marginTop: 8, right: 15, fontFamily: regFont, fontSize: 14 }}>{textLength}/300</Text>
-                    </RegBlurView>
-                    <SendButtons screen={'TextRespond'} textInput={true} textLength={textLength}
-                        afterSentText={'Back to Questions'}
-                        onPressAfterSent={() => navigation.navigate("QuestionsDefault", { data: props.data })} />
-                </RegBackground>
-            </TouchableWithoutFeedback>
+            <RegBackground>
+                {askedCard(route.params)}
+                <RegBlurView style={{ height: 300, marginTop: 20 }}>
+                    <View style={styles.questionCardTopBar}>
+                        {imageRender(route.params, 30, true)}
+                        <Text style={{ fontFamily: regFont, fontSize: 16 }}>  Your response:</Text>
+                    </View>
+                    <View style={{ width: '85%', justifyContent: 'center', alignSelf: 'center', alignItems: 'center', height: '70%', marginTop: 40, }}>
+                        <TextInput
+                            value={text}
+                            onChangeText={onChangeText}
+                            placeholder="Type here"
+                            style={{ fontSize: 18, fontFamily: regFont, width: '100%', height: '100%' }}
+                            maxLength={300}
+                            returnKeyType="next"
+                            blurOnSubmit={true}
+                            multiline={true} />
+                    </View>
+                    <Text style={{ alignSelf: 'flex-end', marginTop: 8, right: 15, fontFamily: regFont, fontSize: 14 }}>{textLength}/300</Text>
+                </RegBlurView>
+                <SendButtons screen={'TextRespond'} textInput={true} textLength={textLength}
+                    afterSentText={'Back to Questions'}
+                    onPressAfterSent={() => { afterSent(route.params.firstName); }} />
+            </RegBackground>
         )
     }
 
@@ -113,11 +122,16 @@ export default function Questions(props) {
     }
 
     function PhotoRespond({ route }) {
-        const takePicture = async () => {
-            notImplemented();
-        };
-
         const [image, setImage] = useState(null);
+        const takePicture = async () => {
+            const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+            if (permissionResult.granted === false) {
+                alert("The app was denied camera access");
+                return;
+            }
+            const result = await ImagePicker.launchCameraAsync();
+            setImage(result.uri);
+        };
         const pickImage = async () => {
             // No permissions request is necessary for launching the image library
             let result = await ImagePicker.launchImageLibraryAsync({
@@ -137,7 +151,7 @@ export default function Questions(props) {
                     {image ? <>
                         <Image source={{ uri: image }} style={[styles.questionCard, { width: '90%', borderWidth: 1, borderColor: 'white', marginTop: 20 }]} />
                         <SendButtons screen={'PhotoRespond'} textInput={false} afterSentText={'Back to Questions'}
-                            onPressAfterSent={() => navigation.navigate("QuestionsDefault", { data: props.data })} />
+                            onPressAfterSent={() => { afterSent(route.params.firstName); }} />
                     </>
                         : <View style={{ alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row', width: '90%', alignSelf: 'center' }}>
                             <BlurPressable style={{ width: 165, height: 80, marginTop: 20, flexDirection: 'row' }} onPress={takePicture}>
@@ -256,10 +270,10 @@ export default function Questions(props) {
                     <Progress.Bar progress={progress} style={{ marginLeft: 15 }} height={6} width={200} color={'white'}></Progress.Bar>
                 </View>}
                 {(paused === true || memoDone === true) && <>
-                    <Pressable style={styles.send} onPress={() => { setFill(0); setProgress(0); setPausedListen(true); setPaused(false); setMemoDone(false) }}>
-                        <Text style={{ fontFamily: regFont, fontSize: 18, color: 'white', }}>Re-record</Text>
-                    </Pressable><SendButtons screen={'AudioRespond'} textInput={false} afterSentText={'Back to Questions'}
-                        onPressAfterSent={() => navigation.navigate("QuestionsDefault", { data: props.data })} />
+                    <BlurPressable text={'Re-record'}
+                        style={styles.send} onPress={() => { setFill(0); setProgress(0); setPausedListen(true); setPaused(false); setMemoDone(false) }} />
+                    <SendButtons screen={'AudioRespond'} textInput={false} afterSentText={'Back to Questions'}
+                        onPressAfterSent={() => { afterSent(route.params.firstName); }} />
                 </>}
             </RegBackground>
         )

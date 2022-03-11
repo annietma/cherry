@@ -43,56 +43,57 @@ export function BlurPressable(props) {
     )
 }
 
-export function notImplemented() {
-    Alert.alert("Functionality not yet implemented",
-        "This functionality is beyond the scope of our project, but it will be implemented in future iterations.",
+export function notImplemented(functionality) {
+    Alert.alert("Not yet implemented",
+        "\"" + functionality + "\" is beyond the scope of our project, but it will be implemented in future iterations.",
         [{ text: "OK" }]);
 }
 
 export function SendButtons(props) {
     const navigation = useNavigation();
-    var [sendButton, setSendButton] = useState("Send →");
-    var [border, setBorder] = useState(true);
-    var [lowerButtons, setLowerButtons] = useState(<></>);
-    var [clickable, setClickable] = useState(false);
-    if ((clickable === false) && (props.textInput === false || props.textLength > 0 || props.category !== "Custom")) setClickable(true);
-    if (clickable === true && props.textInput === true && props.textLength < 1 && props.category === "Custom") setClickable(false);
+    const onPressAfterSent = props.onPressAfterSent ? props.onPressAfterSent : () => { navigation.navigate("ChooseContact", { data: props.contacts }) };
 
-    var onPressUpper = () => { setSendButton("Send?"); setLowerButtons(confirmLower); setClickable(false); setBorder(false) };
-    var onPressNo = () => { setSendButton("Send →"); setLowerButtons(<></>); setBorder(true) };
-    var onPressYes = () => { setSendButton("Sent!"); setLowerButtons(sentLower) };
-    var onPressAfterSent = props.onPressAfterSent ? props.onPressAfterSent : () => { navigation.navigate("ChooseContact", { data: props.contacts }) };
-    var color = 'black';
+    var upperSend = <BlurPressable text={'Send'} textStyle={styles.sendText} style={styles.send}
+        onPress={() => { setUpperButton(upperConfirm); setLowerButtons(lowerConfirm); }} />;
 
-    if (!clickable) {
-        onPressUpper = () => { }
-        color = 'rgba(255, 255, 255, 0.5)';
-    }
-
-    var upperButtons =
-        <Pressable onPress={onPressUpper}>
-            <View style={[styles.send, { borderWidth: border ? 1 : 0, backgroundColor: border ? 'rgba(255, 255, 255, 0.55)' : 'transparent', borderColor: 'white', marginTop: 30 }]}>
-                <Text style={[styles.sendText, { color: color }]}>{sendButton}</Text>
-            </View>
-        </Pressable>;
-
-    var confirmLower = <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
-        <Pressable onPress={onPressNo} style={[styles.send, { marginRight: 0, width: 120 }]}>
-            <Text style={styles.sendText}>No</Text>
-        </Pressable>
-        <Pressable onPress={onPressYes} style={[styles.send, { marginRight: 0, width: 120 }]}>
-            <Text style={styles.sendText}>Yes</Text>
-        </Pressable>
+    var upperSendGrayed = <View style={[styles.send, { borderWidth: 0, backgroundColor: 'transparent', }]}>
+        <Text style={[styles.sendText, { color: 'rgba(0,0,0, 0.5)' }]}>Send</Text>
     </View>;
 
-    var sentLower = <><Pressable onPress={onPressAfterSent} style={styles.send}>
-        <Text style={styles.sendText}>{props.afterSentText}</Text>
-    </Pressable></>;
+    var upperConfirm = <View style={[styles.send, { borderWidth: 0, backgroundColor: 'transparent', }]}>
+        <Text style={styles.sendText}>Send?</Text>
+    </View>;
+
+    var upperSent = <View style={[styles.send, { borderWidth: 0, backgroundColor: 'transparent', }]}>
+        <Text style={styles.sendText}>Sent!</Text>
+    </View>;
+
+    var lowerConfirm = <View style={{ flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between', width: '70%' }}>
+        <BlurPressable text={'No'} textStyle={styles.sendText} style={[styles.send, { width: 120 }]}
+            onPress={() => { setUpperButton(upperSend); setLowerButtons(<></>); }} />
+        <BlurPressable text={'Yes'} textStyle={styles.sendText} style={[styles.send, { width: 120 }]}
+            onPress={() => { setUpperButton(upperSent); setLowerButtons(lowerSent); }} />
+    </View>;
+
+    var lowerSent = <BlurPressable text={props.afterSentText} textStyle={styles.sendText} style={styles.send}
+        onPress={() => onPressAfterSent()} />;
+
+    var upperButton = upperSend;
+    var [upperButton, setUpperButton] = useState(upperSend);
+    var [lowerButtons, setLowerButtons] = useState(<></>);
+    if (props.textInput === true && props.textLength < 1) {
+        if (upperButton === upperSend) upperButton = upperSendGrayed;
+    }
+    if (props.textInput === true && props.textLength > 0) {
+        if (upperButton === upperSendGrayed) upperButton = upperSend;
+
+    }
 
     return (
         <>
-            {upperButtons}
+            {upperButton}
             {lowerButtons}
+            <View style={{ marginTop: 80 }}></View>
         </>
     )
 }
@@ -133,8 +134,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         borderColor: 'white',
         borderWidth: 1,
-        marginBottom: 20,
-        backgroundColor: 'rgba(255, 255, 255, 0.55)'
+        marginTop: 20,
     },
     sendText: {
         fontFamily: regFont,

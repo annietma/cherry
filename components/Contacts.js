@@ -84,7 +84,7 @@ export function ContactList(props) {
             showQuestion={props.showQuestion}
             showResponse={props.showResponse}
             response={item.response}
-            phone={item.phoneNumbers[0].number}
+            phone={item.phoneNumbers && item.phoneNumbers[0].number}
             id={props.id}
         />;
     };

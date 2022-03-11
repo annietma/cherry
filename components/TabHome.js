@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, Alert, View, FlatList, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, Alert, ScrollView, View, FlatList, Image, Pressable, TextInput } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { BlurView } from 'expo-blur';
@@ -41,7 +41,7 @@ export function CategoriesComponent(props) {
             <BlurPressable text={'✏️ Write your own question'} style={{ marginTop: 10, marginBottom: 60 }}
                 onPress={() => { data.category = "Custom"; onPressCategory() }} />
             <BlurPressable text={'+/- categories'} textStyle={{ fontSize: 14 }} style={{ alignSelf: 'flex-start', marginLeft: '7.5%', width: '35%', height: 35, marginBottom: 18, backgroundColor: 'transparent' }}
-                onPress={() => notImplemented()} />
+                onPress={() => notImplemented("+/- categories")} />
             <FlatList data={categories} renderItem={renderCategories} keyExtractor={(item) => item.name} />
         </>
     )
@@ -51,18 +51,18 @@ export function CategoriesComponent(props) {
 export function QuestionComponent(props) {
     const navigation = useNavigation();
 
-    var question = '';
+    var questionText = '';
     if (props.data.category === "Random") {
-        question = categories[props.data.question].question;
+        questionText = categories[props.data.question].question;
     }
     else if (props.data.category !== "Custom") {
-        question = categories.find((category) => {
+        questionText = categories.find((category) => {
             return category.name === props.data.category;
         }).question;
     }
 
     props.data.screen = "Question";
-    props.data.question = question;
+    props.data.questionText = questionText;
 
     var goToScreen = "ChooseContact";
     if (props.goToScreen) goToScreen = props.goToScreen;
@@ -72,9 +72,9 @@ export function QuestionComponent(props) {
     var [text, setText] = React.useState("");
     if (props.data.category === "Custom") {
         var textLength = text.length;
-        return (<View>
-            <BlurPressable text={'VIEW PAST QUESTIONS'} style={{ marginTop: 60, width: 250 }} onPress={() => notImplemented()} />
-            <RegBlurView style={{ height: 320, marginTop: 20, marginBottom: 40 }}>
+        return (<ScrollView>
+            <BlurPressable text={'View Past Questions'} style={{ marginTop: 60, width: 250 }} onPress={() => notImplemented("View Past Questions")} />
+            <RegBlurView style={{ height: 320, marginTop: 20, marginBottom: 10 }}>
                 <TextInput
                     value={text}
                     onChangeText={setText}
@@ -83,13 +83,15 @@ export function QuestionComponent(props) {
                     textAlignVertical={'center'}
                     style={{ fontFamily: regFont, fontSize: 25, lineHeight: 40, textAlign: 'center', width: '80%' }}
                     maxLength={150}
+                    returnKeyType="next"
+                    blurOnSubmit={true}
                     multiline={true} />
                 <Text style={{ position: 'absolute', bottom: 15, right: 15, fontFamily: regFont, fontSize: 14 }}>{textLength}/150</Text>
             </RegBlurView>
             <SendButtons screen={'Question'} contacts={props.data} category={props.data.category} textInput={true} textLength={textLength}
                 onPressAfterSent={() => navigation.navigate(goToScreen, props.data)}
                 afterSentText={afterSentText} />
-        </View>
+        </ScrollView>
         )
     }
     else {
@@ -97,7 +99,7 @@ export function QuestionComponent(props) {
             <>
                 <RegBlurView>
                     <Text style={{ position: 'absolute', top: 15, left: 15, fontFamily: regFont, fontSize: 14 }}>{props.data.category}</Text>
-                    <Text style={{ fontFamily: regFont, fontSize: 25, lineHeight: 40, textAlign: 'center', width: '80%' }}>{question}</Text>
+                    <Text style={{ fontFamily: regFont, fontSize: 25, lineHeight: 40, textAlign: 'center', width: '80%' }}>{questionText}</Text>
                 </RegBlurView>
                 <SendButtons screen={'Question'} contacts={props.data} category={props.data.category} textInput={true} textLength={textLength}
                     onPressAfterSent={() => navigation.navigate(goToScreen, props.data)}
@@ -116,7 +118,8 @@ export default function Home(props) {
             return (
                 <>
                     <Text style={{ fontFamily: regFont, fontSize: 20, marginTop: 30, marginBottom: 5, marginLeft: '5%', color: 'white' }}>{title}</Text>
-                    <View style={{ width: '90%', alignSelf: 'center', alignItems: 'center', flexDirection: 'row' }}>
+                    <Pressable onPress={() => notImplemented("Card swiping")}
+                        style={{ width: '90%', alignSelf: 'center', alignItems: 'center', flexDirection: 'row' }}>
                         <View style={{ height: 155, width: '70%', backgroundColor: 'rgba(255, 255, 255, 0.45)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)', position: 'absolute', right: 0 }} />
                         <BlurView intensity={blurIntensity} tint="light"
                             style={{ overflow: 'hidden', backgroundColor: 'rgba(255, 255, 255, 0.55)', height: 180, width: '94%', justifyContent: 'center', borderWidth: 1, borderColor: 'white', borderRadius: 25, }}>
@@ -126,15 +129,16 @@ export default function Home(props) {
                             </View>
                             <Text style={{ textAlign: 'center', fontFamily: regFont, fontSize: 18, width: '90%', alignSelf: 'center', marginTop: 20, }}>{bodyText}</Text>
                         </BlurView>
-                    </View>
+                    </Pressable>
                 </>
             )
         }
         return (
             <RegBackground>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-                    <Image style={{ width: 40, height: 40, borderRadius: 100, position: 'absolute', left: 20, borderWidth: 1, borderColor: 'white' }}
-                        source={require('../assets/monalisa.jpeg')} />
+                    <Pressable onPress={() => notImplemented("Profile page")} style={{ position: 'absolute', left: 20 }}>
+                        <Image style={{ width: 40, height: 40, borderRadius: 100, borderWidth: 1, borderColor: 'white' }}
+                            source={require('../assets/monalisa.jpeg')} /></Pressable>
                     <Text style={{ fontFamily: 'PlayfairDisplay_800ExtraBold_Italic', fontSize: 40, color: 'white' }}>Cherry</Text>
                 </View>
                 {cardBlock("New Questions", props.data[0], "asked:", "What are you most excited about in the coming weeks?")}
@@ -175,15 +179,13 @@ export default function Home(props) {
 
     function Question({ route }) {
         return (
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <RegBackground>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 45, }}>
-                        {imageRender(route.params)}
-                        <Text style={{ alignSelf: 'center', fontFamily: regFont, fontSize: 16, color: 'white' }}> {route.params.firstName} {route.params.lastName}</Text>
-                    </View>
-                    <QuestionComponent data={route.params} />
-                </RegBackground>
-            </TouchableWithoutFeedback>
+            <RegBackground>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 45, }}>
+                    {imageRender(route.params)}
+                    <Text style={{ alignSelf: 'center', fontFamily: regFont, fontSize: 16, color: 'white' }}> {route.params.firstName} {route.params.lastName}</Text>
+                </View>
+                <QuestionComponent data={route.params} />
+            </RegBackground>
         )
     }
 

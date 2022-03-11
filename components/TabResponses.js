@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, Alert, TextInput, Keyboard, TouchableWithoutFeedback, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, Pressable, SafeAreaView, Alert, TextInput, StatusBar } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,13 +16,6 @@ import { askedCard } from './TabQuestions';
 export default function Responses(props) {
     const ResponsesStack = createStackNavigator();
     const navigation = useNavigation();
-
-    var contactsWithResponses = [];
-    var j = 0;
-    for (var i = 0; i < 4; i++) {
-        contactsWithResponses.push(props.data[j]);
-        j += Math.floor(props.data.length / 4);
-    }
 
     function ResponsesDefault() {
         return (

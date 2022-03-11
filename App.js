@@ -8,6 +8,9 @@ import { useFonts, PlayfairDisplay_800ExtraBold_Italic, } from '@expo-google-fon
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs();//Ignore all log notificationsimport { LogBox } from 'react-native';
 
 import Home from './components/TabHome';
 import Questions from './components/TabQuestions';
@@ -35,7 +38,6 @@ export default function App() {
         const { data } = await Contacts.getContactsAsync({
           sort: Contacts.SortTypes.LastName
         });
-
         if (data.length > 0) {
           setContactsData(data);
         }
@@ -54,17 +56,23 @@ export default function App() {
         }
       }
 
+      global.contactsWithQuestionsMaster = [];
       var j = 0;
       for (var i = 0; i < 6; i++) {
         ContactsData[j].question = questions[i];
+        contactsWithQuestionsMaster.push(ContactsData[j]);
         j += Math.floor(ContactsData.length / 6);
       }
+      global.contactsWithQuestions = [...contactsWithQuestionsMaster];
 
+      global.contactsWithResponsesMaster = [];
       j = 0;
       for (var i = 0; i < 4; i++) {
         ContactsData[j].response = responses[i];
+        contactsWithResponsesMaster.push(ContactsData[j]);
         j += Math.floor(ContactsData.length / 4);
       }
+      global.contactsWithResponses = [...contactsWithResponsesMaster];
     }
   }, [ContactsData]);
 
@@ -139,7 +147,7 @@ export default function App() {
             children={() => <Home data={ContactsData} />} />
           <Tab.Screen name="Questions" options={{
             tabBarStyle: { backgroundColor: "rgba(255, 255, 255, 0)", borderTopColor: 'transparent' },
-            tabBarBadge: 6,
+            tabBarBadge: contactsWithQuestions.length,
             tabBarIcon: ({ color }) => (<Icon name='pencil-box-multiple' color={color} size={35} />)
           }}
             children={() => <Questions data={ContactsData} />} />

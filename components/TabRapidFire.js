@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Alert, Pressable, SafeAreaView, TextInput, Keyboard, TouchableWithoutFeedback, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, Alert, Pressable, SafeAreaView, TextInput, Keyboard, StatusBar } from 'react-native';
 import { useNavigationState, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -217,7 +217,7 @@ export default function RapidFire(props) {
         }
         return (
             <RegBackground shade={'dark'}>
-                {askedCard(route.params, false, true, route.params.question)}
+                {askedCard(route.params, false, true, route.params.questionText)}
                 <RegBlurView style={{ marginTop: 20, justifyContent: 'flex-start', height: responseHeight }}>
                     <View style={styles.questionCardTopBar}>
                         {imageRender(route.params)}
@@ -276,12 +276,11 @@ export default function RapidFire(props) {
 
             <RegBackground shade={'dark'}>
                 <ScrollView >
-                    {askedCard(route.params, false, "What's a picture that made you smile this week?")}
+                    {askedCard(route.params, false, false, "What's a picture that made you smile this week?")}
                     {image ? <>
                         <Image source={{ uri: image }} style={[styles.questionCard, { width: '90%', borderWidth: 1, borderColor: 'white', marginTop: 20 }]} />
                         <SendButtons screen={'PhotoRespond'} textInput={false} afterSentText={'Ask ' + route.params.firstName + ' a question'}
                             onPressAfterSent={() => navigation.navigate("RFCategories", route.params)} />
-                        <View style={{ marginTop: 80 }}></View>
                     </>
                         : <View style={{ alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row', width: '90%', alignSelf: 'center' }}>
                             <BlurPressable style={{ width: 165, height: 80, marginTop: 20, flexDirection: 'row' }} onPress={takePicture}>
