@@ -29,7 +29,12 @@ export function ContactList(props) {
             onPressContact = () => navigation.navigate("ViewQuestion", props);
         }
         if (props.onPressContact === "ViewResponse") {
-            onPressContact = () => navigation.navigate("ViewResponse", props);
+            onPressContact = () => {
+                contactsWithResponses.splice(contactsWithResponses.findIndex((contact) => {
+                    return contact.firstName === props.firstName;
+                }), 1);
+                navigation.navigate("ViewResponse", props);
+            };
         }
         if (props.onPressContact === "ConfirmRequest") {
             onPressContact = () => navigation.navigate("ConfirmRequest", props);
@@ -90,7 +95,13 @@ export function ContactList(props) {
     };
 
     return (
-        <FlatList data={props.data} renderItem={renderContacts} style={styles.container} keyExtractor={(item) => item.id} />
+        <FlatList
+            data={props.data}
+            renderItem={renderContacts}
+            style={styles.container}
+            keyExtractor={(item) => item.id}
+            ListHeaderComponent={<View style={{ height: 30 }} />}
+        />
     );
 }
 

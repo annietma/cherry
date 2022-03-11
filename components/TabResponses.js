@@ -18,18 +18,28 @@ export default function Responses(props) {
     const navigation = useNavigation();
 
     function ResponsesDefault() {
-        return (
+        var [reload, setReload] = useState(false);
+        if (contactsWithResponses.length === 0) {
+            return (
+                <RegBackground>
+                    <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                        <BlurPressable text={'Reload Responses'} style={{ width: 200 }} onPress={() => { contactsWithResponses = [...contactsWithResponsesMaster]; setReload(true); }} />
+                    </View>
+                </RegBackground>
+            )
+        }
+        else return (
             <RegBackground>
-                <View style={{ marginTop: 60 }}>
-                    <ContactList
-                        data={contactsWithResponses}
-                        contactStyle={styles.contact}
-                        nameStyle={{ fontFamily: regFont, fontSize: 16, marginLeft: 30, color: 'white' }}
-                        onPressContact="ViewResponse"
-                        showQuestionAnswered={true}
-                        showResponse={true}
-                    />
-                </View>
+                <View style={{ marginTop: 30 }}></View>
+                <ContactList
+                    data={contactsWithResponses}
+                    contactStyle={styles.contact}
+                    nameStyle={{ fontFamily: regFont, fontSize: 16, marginLeft: 30, color: 'white' }}
+                    onPressContact="ViewResponse"
+                    showQuestionAnswered={true}
+                    showResponse={true}
+                />
+
             </RegBackground>
         )
     }
@@ -143,7 +153,13 @@ export default function Responses(props) {
             },
             animationEnabled: false,
         }}>
-            <ResponsesStack.Screen options={{ headerTitle: "Today's Responses", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="ResponsesDefault" component={ResponsesDefault} />
+            <ResponsesStack.Screen options={{
+                headerTitle: "Today's Responses",
+                headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 },
+                headerRight: () =>
+                    <Pressable onPress={() => notImplemented("Previous Responses")} style={{ marginRight: 20 }}>
+                        <Icon name='history' size={30} color={'white'} /></Pressable>
+            }} name="ResponsesDefault" component={ResponsesDefault} />
             <ResponsesStack.Screen options={{}} name="ViewResponse" component={ViewResponse} />
 
         </ResponsesStack.Navigator>

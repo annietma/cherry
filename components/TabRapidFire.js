@@ -9,7 +9,6 @@ import { CategoriesComponent, QuestionComponent } from './TabHome';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as ImagePicker from 'expo-image-picker';
 
-
 import { imageRender, ContactList } from './Contacts';
 import { regFont, blurIntensity, RegBackground, RegBlurView, BlurPressable, notImplemented, SendButtons } from './Styles';
 import { askedCard } from './TabQuestions';
@@ -31,7 +30,7 @@ export default function RapidFire(props) {
             <RegBackground shade={'dark'}>
                 <BlurView intensity={blurIntensity} tint='dark'
                     style={styles.blurCard}>
-                    <Text style={{ height: 50, marginTop: 20, alignSelf: 'center', fontFamily: regFont, fontSize: 18, color: 'white' }} >Contacts Online</Text>
+                    <Text style={{ height: 30, marginTop: 20, alignSelf: 'center', fontFamily: regFont, fontSize: 18, color: 'white' }} >Contacts Online</Text>
                     <ContactList data={contactsOnline}
                         nameStyle={{ fontFamily: regFont, fontSize: 16, marginLeft: 30, color: 'white' }}
                         onPressContact="ConfirmRequest" />
@@ -105,7 +104,7 @@ export default function RapidFire(props) {
 
     function RFSession(props) {
         var [timeLeft, setTimeLeft] = useState(1);
-        var timerSession = setTimeout(() => setTimeLeft((prev) => prev - 0.01), 500);
+        var timerSession = setTimeout(() => setTimeLeft((prev) => prev - 0.01), 1000);
         if (timeLeft <= 0) {
             clearTimeout(timerSession);
         }
@@ -255,11 +254,16 @@ export default function RapidFire(props) {
     }
 
     function RFPhotoRespond({ route }) {
-        const takePicture = async () => {
-            notImplemented();
-        };
-
         const [image, setImage] = useState(null);
+        const takePicture = async () => {
+            const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+            if (permissionResult.granted === false) {
+                alert("The app was denied camera access");
+                return;
+            }
+            const result = await ImagePicker.launchCameraAsync();
+            setImage(result.uri);
+        };
         const pickImage = async () => {
             // No permissions request is necessary for launching the image library
             let result = await ImagePicker.launchImageLibraryAsync({
@@ -275,7 +279,7 @@ export default function RapidFire(props) {
         return (
 
             <RegBackground shade={'dark'}>
-                <ScrollView >
+                <ScrollView style={{ height: '100%' }}>
                     {askedCard(route.params, false, false, "What's a picture that made you smile this week?")}
                     {image ? <>
                         <Image source={{ uri: image }} style={[styles.questionCard, { width: '90%', borderWidth: 1, borderColor: 'white', marginTop: 20 }]} />

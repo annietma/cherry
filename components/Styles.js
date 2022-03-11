@@ -1,8 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View, } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View, } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import SafeAreaView from 'react-native-safe-area-view';
 
 export var regFont = 'Nunito_500Medium';
 export var blurIntensity = 75;
@@ -16,7 +17,7 @@ export function RegBackground(props) {
     }
     return (
         <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} locations={locations}>
-            <SafeAreaView style={{ height: '100%' }}>
+            <SafeAreaView style={{ height: '100%' }} forceInset={{ top: 'always' }}>
                 {props.children}
             </SafeAreaView>
         </LinearGradient>

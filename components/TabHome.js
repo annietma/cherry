@@ -157,7 +157,6 @@ export default function Home(props) {
                         overflow: 'hidden', backgroundColor: 'rgba(255, 255, 255, 0.55)', width: '90%', height: '88%', justifyContent: 'center',
                         borderWidth: 1, borderColor: 'white', borderRadius: 25, marginTop: 70, alignSelf: 'center'
                     }}>
-                    <View style={{ height: 50 }} />
                     <ContactList data={props.data} />
                 </BlurView>
             </RegBackground>

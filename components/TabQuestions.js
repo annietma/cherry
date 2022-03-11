@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Animated, Circle, StyleSheet, Text, View, TouchableOpacity, FlatList, Image, Pressable, SafeAreaView, TextInput, Button, StatusBar, ListViewComponent } from 'react-native';
+import { Animated, Circle, StyleSheet, Text, View, TouchableOpacity, FlatList, Image, Pressable, SafeAreaView, TextInput } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { BlurView } from 'expo-blur';
@@ -49,7 +49,7 @@ export default function Questions(props) {
         }
         else return (
             <RegBackground>
-                <View style={{ marginTop: 60 }}></View>
+                <View style={{ marginTop: 30 }}></View>
                 <ContactList
                     data={contactsWithQuestions}
                     contactStyle={styles.contact}
@@ -114,9 +114,14 @@ export default function Questions(props) {
     function DrawingRespond({ route }) {
         return (
             <RegBackground>
-                {askedCard(route.params)}
-                <View style={[styles.questionCard, { height: 350, marginTop: 20, }]}>
-                </View>
+                <ScrollView>
+                    {askedCard(route.params)}
+                    <View style={[styles.questionCard, { height: 350, marginTop: 20, }]}>
+                    </View>
+                    <SendButtons screen={'DrawingRespond'}
+                        afterSentText={'Back to Questions'}
+                        onPressAfterSent={() => { afterSent(route.params.firstName); }} />
+                </ScrollView>
             </RegBackground>
         )
     }
@@ -293,7 +298,13 @@ export default function Questions(props) {
             },
             animationEnabled: false,
         }}>
-            <QuestionsStack.Screen options={{ headerTitle: "Today's Questions", headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 } }} name="QuestionsDefault" component={QuestionsDefault} />
+            <QuestionsStack.Screen options={{
+                headerTitle: "Today's Questions",
+                headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 },
+                headerRight: () =>
+                    <Pressable onPress={() => notImplemented("Previous Questions")} style={{ marginRight: 20 }}>
+                        <Icon name='history' size={30} color={'white'} /></Pressable>
+            }} name="QuestionsDefault" component={QuestionsDefault} />
             <QuestionsStack.Screen options={{}} name="ViewQuestion" component={ViewQuestion} />
             <QuestionsStack.Screen options={{}} name="TextRespond" component={TextRespond} />
             <QuestionsStack.Screen options={{}} name="DrawingRespond" component={DrawingRespond} />
