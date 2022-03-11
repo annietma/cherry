@@ -39,7 +39,6 @@ export default function Responses(props) {
                     showQuestionAnswered={true}
                     showResponse={true}
                 />
-
             </RegBackground>
         )
     }
@@ -154,7 +153,7 @@ export default function Responses(props) {
             animationEnabled: false,
         }}>
             <ResponsesStack.Screen options={{
-                headerTitle: "Today's Responses",
+                headerTitle: "New Responses",
                 headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 },
                 headerRight: () =>
                     <Pressable onPress={() => notImplemented("Previous Responses")} style={{ marginRight: 20 }}>

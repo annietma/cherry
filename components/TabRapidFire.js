@@ -18,18 +18,10 @@ export default function RapidFire(props) {
     const RFStack = createStackNavigator();
     const navigation = useNavigation();
 
-    var contactsOnline = [];
-    for (var i = 0; i < props.data.length; i++) {
-        if (props.data[i].online === true) {
-            contactsOnline.push(props.data[i])
-        }
-    }
-
     function RapidFireDefault() {
         return (
             <RegBackground shade={'dark'}>
-                <BlurView intensity={blurIntensity} tint='dark'
-                    style={styles.blurCard}>
+                <BlurView intensity={blurIntensity} tint='dark' style={styles.blurCard}>
                     <Text style={{ height: 30, marginTop: 20, alignSelf: 'center', fontFamily: regFont, fontSize: 18, color: 'white' }} >Contacts Online</Text>
                     <ContactList data={contactsOnline}
                         nameStyle={{ fontFamily: regFont, fontSize: 16, marginLeft: 30, color: 'white' }}

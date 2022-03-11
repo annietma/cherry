@@ -117,48 +117,41 @@ export default function Questions(props) {
             <RegBackground>
                 <ScrollView>
                     {askedCard(route.params)}
-                    <View style={[styles.questionCard, { height: 350, marginTop: 20, }]}>
+                    <RegBlurView style={{ height: 350, marginTop: 20, }}>
                         <RNSketchCanvas
                             containerStyle={{ backgroundColor: 'transparent', flex: 1 }}
                             canvasStyle={{ backgroundColor: 'transparent', flex: 1 }}
                             defaultStrokeIndex={0}
                             defaultStrokeWidth={5}
-                            closeComponent={<View style={styles.functionButton}><Text style={{color: 'white'}}>Close</Text></View>}
-                            undoComponent={<View style={styles.functionButton}><Text style={{color: 'white'}}>Undo</Text></View>}
-                            clearComponent={<View style={styles.functionButton}><Text style={{color: 'white'}}>Clear</Text></View>}
-                            eraseComponent={<View style={styles.functionButton}><Text style={{color: 'white'}}>Eraser</Text></View>}
-                            strokeComponent={color => (
-                                <View style={[{ backgroundColor: color }, styles.strokeColorButton]} />
-                            )}
-                            strokeSelectedComponent={(color, index, changed) => {
-                                return (
-                                    <View style={[{ backgroundColor: color, borderWidth: 2 }, styles.strokeColorButton]} />
-                                )
-                            }}
-                            strokeWidthComponent={(w) => {
-                                return (<View style={styles.strokeWidthButton}>
-                                        <View  style={{
-                                            backgroundColor: 'white', marginHorizontal: 2.5,
-                                            width: Math.sqrt(w / 3) * 10, height: Math.sqrt(w / 3) * 10, borderRadius: Math.sqrt(w / 3) * 10 / 2
-                                        }} />
+                            eraseComponent={<View style={[styles.functionButton, { marginLeft: 15 }]}><Text style={styles.buttonText}>Eraser</Text></View>}
+                            strokeWidthComponent={(w) => (
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 10, left: -15 }}>
+                                    <Text style={styles.buttonText}>Size:  </Text>
+                                    <View style={{ width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ff4a86' }}>
+                                        <View style={{ backgroundColor: 'white', borderRadius: 100, width: Math.sqrt(w / 3) * 10, height: Math.sqrt(w / 3) * 10, }} />
                                     </View>
-                                )}}
-                            saveComponent={<View style={styles.functionButton}><Text style={{color: 'white'}}>Save</Text></View>}
-                            savePreference={() => {
-                                return {
-                                    folder: 'RNSketchCanvas',
-                                    filename: String(Math.ceil(Math.random() * 100000000)),
-                                    transparent: false,
-                                    imageType: 'png'
-                                }
-                            }}
+                                </View>
+                            )
+                            }
+                            undoComponent={<View style={styles.functionButton}><Text style={styles.buttonText}>Undo</Text></View>}
+                            clearComponent={<View style={[styles.functionButton, { marginLeft: 15, marginRight: 15 }]}><Text style={styles.buttonText}>Clear</Text></View>}
+                            strokeComponent={color => (
+                                <View style={{ height: 40, marginHorizontal: 2.5, marginVertical: 8, justifyContent: 'center' }}>
+                                    <View style={{ backgroundColor: color, width: 30, height: 30, borderRadius: 100 }} />
+                                </View>
+                            )}
+                            strokeSelectedComponent={(color, index, changed) => (
+                                <View style={{ backgroundColor: color, borderWidth: 1, borderColor: 'white', marginHorizontal: 2.5, marginVertical: 8, width: 40, height: 40, borderRadius: 100, }} />
+                            )
+                            }
+
                         />
-                    </View>
+                    </RegBlurView>
                     <SendButtons screen={'DrawingRespond'}
                         afterSentText={'Back to Questions'}
                         onPressAfterSent={() => { afterSent(route.params.firstName); }} />
                 </ScrollView>
-            </RegBackground>
+            </RegBackground >
         )
     }
 
@@ -296,9 +289,9 @@ export default function Questions(props) {
                         borderRadius={10} />}
                     <Pressable onPressIn={onPressInMic} onPressOut={onPressOutMic}>
                         <Animated.View style={[{ transform: [{ scale }] }]}>
-                            <BlurView intensity={75} tint="light" style={{ backgroundColor: 'rgba(255, 255, 255, 0.35)', height: 90, width: 90, borderRadius: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                            <RegBlurView style={{ height: 90, width: 90, borderRadius: 100, marginTop: 0 }}>
                                 {recordIcon}
-                            </BlurView>
+                            </RegBlurView>
                         </Animated.View>
                     </Pressable>
                 </View>
@@ -335,7 +328,7 @@ export default function Questions(props) {
             animationEnabled: false,
         }}>
             <QuestionsStack.Screen options={{
-                headerTitle: "Today's Questions",
+                headerTitle: "New Questions",
                 headerTitleStyle: { color: 'white', fontFamily: regFont, fontSize: 24 },
                 headerRight: () =>
                     <Pressable onPress={() => notImplemented("Previous Questions")} style={{ marginRight: 20 }}>
@@ -389,15 +382,17 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginTop: 20,
     },
-    strokeColorButton: {
-        marginHorizontal: 2.5, marginVertical: 8, width: 30, height: 30, borderRadius: 15,
-    },
-    strokeWidthButton: {
-        marginHorizontal: 2.5, marginVertical: 8, width: 30, height: 30, borderRadius: 15,
-        justifyContent: 'center', alignItems: 'center', backgroundColor: '#39579A'
-    },
     functionButton: {
-        marginHorizontal: 2.5, marginVertical: 8, height: 30, width: 60,
-        backgroundColor: '#39579A', justifyContent: 'center', alignItems: 'center', borderRadius: 5,
+        height: 30,
+        width: 70,
+        marginTop: 10,
+        backgroundColor: 'rgba(255, 255, 255, 0.65)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+    },
+    buttonText: {
+        fontFamily: regFont,
+        fontSize: 14,
     }
 });

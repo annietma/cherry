@@ -48,13 +48,21 @@ export default function App() {
 
   useEffect(() => {
     if (ContactsData != "") {
+
+      global.contactsOnline = [];
       for (var i = 0; i < ContactsData.length; i++) {
         if (Math.random() < 0.3) {
           ContactsData[i].online = true;
+          contactsOnline.push(ContactsData[i]);
         }
         else {
           ContactsData[i].online = false;
         }
+      }
+      if (contactsOnline.length === 0) {
+        contactsOnline.push(ContactsData[0]);
+        contactsOnline.push(ContactsData[1]);
+        contactsOnline.push(ContactsData[2]);
       }
 
       global.contactsWithQuestionsMaster = [];
