@@ -3,4 +3,6 @@
 
 ### Limitations
 1. Communication with other users is faked
-2. No voice recording for audio responses (expo limitation)
+2. Audio Response: No voice recording functionality (expo limitation)
+3. Picture Response: No camera in-app functionality, but can upload photos from camera roll
+4. Question Bank is hardcoded and limited in size.
