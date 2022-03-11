@@ -1,5 +1,7 @@
 ### Running (on XCode Simulator)
 Note: This app was 'expo eject'd so you need to use expo run:ios instead of expo start.
+
+To start the app simply run this chain of commands (you need npm previously installed):
 ```git clone https://github.com/annietma/cherry && cd cherry/ && git checkout dev && npm install && expo run:ios```
 
 ### Limitations
